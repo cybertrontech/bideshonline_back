@@ -4,11 +4,15 @@ import connectDb from "./database.js";
 import {errorHandler} from "../error/handler.mjs";
 import {CustomError} from "../error/CustomError.mjs"
 import auth from "./middleware/auth.js";
+import userRouter from "./routes/user.routes.js"
+import loginRouter from "./routes/login.routes.js"
 
 dotenv.config();
 const app=express();
 
 connectDb();
+
+app.use(express.json());
 
 app.get("/",auth,(req,res,next)=>{
     try {
@@ -20,7 +24,8 @@ app.get("/",auth,(req,res,next)=>{
       }
 })
 
-
+app.use("/login",loginRouter)
+app.use("/user",userRouter)
 app.use(errorHandler)
 
 

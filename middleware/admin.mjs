@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { CustomError } from "../../error/CustomError.mjs";
+import { CustomError } from "../error/CustomError.mjs";
 dotenv.config();
 
 const isAdmin = (req, res, next) => {
@@ -21,4 +21,4 @@ const isAdmin = (req, res, next) => {
   }
 };
 
-export default isAdmin;
+export  {isAdmin};

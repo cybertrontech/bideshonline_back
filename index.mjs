@@ -1,17 +1,19 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDb from "./database.js";
-import {errorHandler} from "../error/handler.mjs";
-import {CustomError} from "../error/CustomError.mjs"
-import auth from "./middleware/auth.js";
+import {auth} from "./middleware/auth.mjs";
 import userRouter from "./routes/user.routes.js"
 import loginRouter from "./routes/login.routes.js"
+import countryRouter from "./routes/country.routes.js"
+import journeyRouter from "./adminroutes/journeycountry.routes.js"
+import { CustomError } from "./error/CustomError.mjs";
+import { errorHandler } from "./error/handler.mjs";
+import cors from "cors"
 
 dotenv.config();
 const app=express();
-
 connectDb();
-
+app.use(cors())
 app.use(express.json());
 
 app.get("/",auth,(req,res,next)=>{
@@ -24,8 +26,10 @@ app.get("/",auth,(req,res,next)=>{
       }
 })
 
+app.use("/admin/journey",journeyRouter)
 app.use("/login",loginRouter)
 app.use("/user",userRouter)
+app.use("/country",countryRouter)
 app.use(errorHandler)
 
 

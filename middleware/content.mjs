@@ -22,4 +22,4 @@ const isContentCreator = (req, res, next) => {
   }
 };
 
-export default isContentCreator;
+export  {isContentCreator};

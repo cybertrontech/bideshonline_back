@@ -1,6 +1,6 @@
 import dotenv from "dotenv"
-import { CustomError } from "../../error/CustomError.mjs";
 import jwt from "jsonwebtoken"
+import { CustomError } from "../error/CustomError.mjs";
 dotenv.config()
 
 const auth = (req, res, next) => {
@@ -11,7 +11,6 @@ const auth = (req, res, next) => {
     next();
     return;
   }
-
   try {
     const decoded = jwt.verify(token, process.env.PRIVATE_KEY);
     req.user = decoded;
@@ -21,5 +20,4 @@ const auth = (req, res, next) => {
   }
 
 };
-
-export default auth;
+export  { auth };

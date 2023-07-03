@@ -1,7 +1,7 @@
 import Joi from "joi";
-import { CustomError } from "../../error/CustomError.mjs";
 import { User } from "../models/User.mjs";
 import bcrypt from "bcrypt";
+import { CustomError } from "../error/CustomError.mjs";
 
 const userValidationSchema = Joi.object({
   first_name: Joi.string().required(),

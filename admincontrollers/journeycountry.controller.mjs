@@ -17,7 +17,7 @@ const journeyValidationSchema = Joi.object({
 
 const getAllJourneyController = async (req, res, next) => {
   try {
-    const journies=await Journery.find({});
+    const journies=await Journery.find({}).populate("origin").populate("destination");
     return res.send(journies);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -25,7 +25,7 @@ const getAllJourneyController = async (req, res, next) => {
 };
 
 const createContryController = async (req, res, next) => {
-  try {
+  // try {
     const { name } = req.body;
     // Validate the request body against the schema
     const { error, value } = countryValidationSchema.validate(req.body);
@@ -34,21 +34,35 @@ const createContryController = async (req, res, next) => {
     if (error) {
       return next(new CustomError(400, error.details[0].message));
     }
+
+    const path = req.file.path;
+
+    const countryE = await Country.find({ name: name });
+    if (countryE.length > 0) {
+      return next(new CustomError(500, "Country with this name already exist."));
+    }
+
     const country=new Country({
-      name
+      name,
+      image:path
     })
     await country.save();
 
     return res.send({message:"Country Successfully Created."})
 
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 };
 
 const createJourneyController = async (req, res, next) => {
   try {
     const { origin,destination } = req.body;
+
+    if(origin===destination){
+
+      return next(new CustomError(400,"The origin and destination cannot be same."));
+    }
 
     // Validate the request body against the schema
     const { error, value } = journeyValidationSchema.validate(req.body);

@@ -5,6 +5,8 @@ import {auth} from "./middleware/auth.mjs";
 import userRouter from "./routes/user.routes.js"
 import loginRouter from "./routes/login.routes.js"
 import languageRouter from "./adminroutes/language.routes.js"
+import contentRouter from "./adminroutes/content.routes.js"
+import imageRouter from "./adminroutes/image.routes.js"
 import countryRouter from "./routes/country.routes.js"
 import journeyRouter from "./adminroutes/journeycountry.routes.js"
 import tabsRouter from "./adminroutes/tabs.routes.js"
@@ -31,8 +33,10 @@ app.get("/",auth,(req,res,next)=>{
 app.use('/uploads', express.static('uploads'));
 app.use("/admin/journey",journeyRouter)
 app.use("/admin/tabs",tabsRouter)
+app.use("/admin/content",contentRouter)
 app.use("/login",loginRouter)
 app.use("/admin/language",languageRouter)
+app.use("/admin/image",imageRouter)
 app.use("/user",userRouter)
 app.use("/country",countryRouter)
 app.use(errorHandler)

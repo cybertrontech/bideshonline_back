@@ -4,6 +4,7 @@ import connectDb from "./database.js";
 import {auth} from "./middleware/auth.mjs";
 import userRouter from "./routes/user.routes.js"
 import loginRouter from "./routes/login.routes.js"
+import languageRouter from "./adminroutes/language.routes.js"
 import countryRouter from "./routes/country.routes.js"
 import journeyRouter from "./adminroutes/journeycountry.routes.js"
 import tabsRouter from "./adminroutes/tabs.routes.js"
@@ -31,6 +32,7 @@ app.use('/uploads', express.static('uploads'));
 app.use("/admin/journey",journeyRouter)
 app.use("/admin/tabs",tabsRouter)
 app.use("/login",loginRouter)
+app.use("/admin/language",languageRouter)
 app.use("/user",userRouter)
 app.use("/country",countryRouter)
 app.use(errorHandler)

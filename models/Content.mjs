@@ -8,10 +8,16 @@ const contentSchema = new mongoose.Schema(
       ref: "Tabs",
       required: true,
     },
+    language:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Language",
+      required: true,
+    },
     journey: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Journey",
+      ref: "Journery",
       required: true,
+
     },
     data:{
         type:String,

@@ -7,13 +7,24 @@ const jObjId = jId(Joi);
 const contentValidationSchema = Joi.object({
   tab: jObjId(),
   journey: jObjId(),
+  language: jObjId(),
   data: Joi.string().required(),
 });
 
 const getContentController = async (req, res, next) => {
   try {
     const tabId = req.params.tabId;
-    const content = await Content.find({ tab: tabId });
+    
+    const content = await Content.find({ tab: tabId })
+      .sort("-journey")
+      .populate({
+        path: "journey",
+        populate: {
+          path: "origin destination",
+          select: "_id name",
+        },
+      })
+      .populate("language")
     return res.send(content);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -22,7 +33,7 @@ const getContentController = async (req, res, next) => {
 
 const createContentController = async (req, res, next) => {
   try {
-    const { tab, journey, data } = req.body;
+    const { tab, journey, language, data } = req.body;
     // Validate the request body against the schema
     const { error } = contentValidationSchema.validate(req.body);
 
@@ -31,24 +42,27 @@ const createContentController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
-    const con=await Content.find({journey:journey,tab:tab})
-    if(con.length>0)
-    {
-
-    return next(new CustomError(404, "Content Already Exists."));
+    const con = await Content.find({ journey: journey, tab: tab });
+    if (con.length > 0) {
+      return next(
+        new CustomError(
+          404,
+          "Content with this journey and language already exists."
+        )
+      );
     }
-    const cont=new Content({
+    const cont = new Content({
       tab,
       journey,
-      data
-    })
+      language,
+      data,
+    });
     await cont.save();
 
-    return res.send({message:"Content sucessfully created."});
+    return res.send({ message: "Content sucessfully created." });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
-
 };
 
 export { getContentController, createContentController };

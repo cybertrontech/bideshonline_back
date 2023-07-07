@@ -46,6 +46,17 @@ const getLanguageController = async (req, res, next) => {
   }
 };
 
+const getLanguageControllerId = async (req, res, next) => {
+  try {
+    const lang = await Language.find({country:req.params.countryId})
+    return res.send(lang);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+
+
 const createLanguageController = async (req, res, next) => {
   try {
     const { name, country } = req.body;
@@ -74,4 +85,4 @@ const createLanguageController = async (req, res, next) => {
   }
 };
 
-export { getLanguageController, createLanguageController };
+export { getLanguageController, createLanguageController,getLanguageControllerId };

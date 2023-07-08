@@ -1,10 +1,12 @@
 import express from "express"
 import { createUserController, getAllUsersController } from "../controllers/user.controller.mjs";
+import { auth } from "../middleware/auth.mjs";
+import { isAdmin } from "../middleware/admin.mjs";
 const router=express.Router();
 
   
 // Get all users
-router.get('/', getAllUsersController);
+router.get('/',[auth,isAdmin], getAllUsersController);
 
 // Create a new user
 router.post('/',createUserController );

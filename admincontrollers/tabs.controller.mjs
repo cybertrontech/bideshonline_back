@@ -28,12 +28,29 @@ const createTabsController = async (req, res, next) => {
   }
 };
 
-const getTabsController=async (req, res, next) => {
+const getTabsController = async (req, res, next) => {
   try {
-   const tabs=await Tabs.find({}) 
-   return res.send(tabs)
+    const tabs = await Tabs.find({});
+    return res.send(tabs);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
-export { createTabsController,getTabsController };
+
+const activateDeactivateTabController = async (req, res, next) => {
+  try {
+    const { activate } = req.body;
+    const tab = await Tabs.findOne({ _id: req.params.tabId });
+    tab.active = !tab.active;
+    await tab.save();
+    return res.send({ message: "Successfully changed the status." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+export {
+  createTabsController,
+  getTabsController,
+  activateDeactivateTabController,
+};

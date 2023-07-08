@@ -12,7 +12,7 @@ const userValidationSchema = Joi.object({
 });
 
 const getAllUsersController = (req, res, next) => {
-  User.find()
+  User.find({}).select("-password -deviceId -__v")
     .then((users) => {
       return res.status(200).json(users);
     })

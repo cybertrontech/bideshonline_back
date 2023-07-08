@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 dotenv.config()
 import {auth} from "../middleware/auth.mjs"
 import { isAdmin } from "../middleware/admin.mjs"
-import { getLanguageController,getLanguageControllerId,createLanguageController } from "../admincontrollers/language.controller.mjs"
+import { getLanguageController,getLanguageControllerId,createLanguageController,updateLanguageController } from "../admincontrollers/language.controller.mjs"
 const router=express.Router();
 
 
@@ -15,6 +15,9 @@ router.get("/:countryId",[auth],getLanguageControllerId);
 
 // // create tabs 
 router.post('/',[auth,isAdmin],createLanguageController);
+
+// // update language 
+router.post('/:languageId',[auth,isAdmin],updateLanguageController);
 
 
 

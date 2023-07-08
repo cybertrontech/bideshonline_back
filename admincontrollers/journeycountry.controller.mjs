@@ -28,6 +28,7 @@ const getAllJourneyController = async (req, res, next) => {
 
 const createContryController = async (req, res, next) => {
   try {
+    console.log("creatingggggg");
     const { name } = req.body;
     // Validate the request body against the schema
     const { error, value } = countryValidationSchema.validate(req.body);
@@ -60,37 +61,36 @@ const createContryController = async (req, res, next) => {
 
 const updateContryController = async (req, res, next) => {
   try {
-  const { name } = req.body;
-  // Validate the request body against the schema
-  const { error, value } = countryValidationSchema.validate(req.body);
 
-  // Check for validation errors
-  if (error) {
-    return next(new CustomError(400, error.details[0].message));
-  }
+    const { name } = req.body;
+    // Validate the request body against the schema
+    const { error, value } = countryValidationSchema.validate(req.body);
 
-  const path = req.file?.path;
-  
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
 
-  const countryE = await Country.findOne({ _id: req.params.countryId });
+    const path = req.file?.path;
 
-  // if (countryE.length > 0) {
-  // return next(new CustomError(500, "Country with this name already exist."));
-  // }
-  countryE.name = name;
-  if (path !== undefined) {
-    countryE.image = path;
-  }
-  await countryE.save();
+    const countryE = await Country.findOne({ _id: req.params.countryId });
 
-  // const country = new Country({
-  //   name,
-  //   image: path,
-  // });
-  // await country.save();
+    // if (countryE.length > 0) {
+    // return next(new CustomError(500, "Country with this name already exist."));
+    // }
+    countryE.name = name;
+    if (path !== undefined) {
+      countryE.image = path;
+    }
+    await countryE.save();
 
-  return res.send({ message: "Country Successfully Updated.", path: path });
+    // const country = new Country({
+    //   name,
+    //   image: path,
+    // });
+    // await country.save();
 
+    return res.send({ message: "Country Successfully Updated.", path: path });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -131,9 +131,51 @@ const createJourneyController = async (req, res, next) => {
   }
 };
 
+const updateJourneyController = async (req, res, next) => {
+  try {
+    console.log("it's hitting this");
+    const { origin, destination } = req.body;
+
+    if (origin === destination) {
+      return next(
+        new CustomError(400, "The origin and destination cannot be same.")
+      );
+    }
+
+    // Validate the request body against the schema
+    const { error, value } = journeyValidationSchema.validate(req.body);
+
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+
+    const alreadyExists = await Journery.find({ origin, destination });
+    if (alreadyExists.length > 0) {
+      return next(new CustomError(404, "This Journey already exists."));
+    }
+
+    const journey = await Journery.findOne({ _id: req.params.journeyId });
+    journey.origin = origin;
+    journey.destination = destination;
+    const jorCon=await Country.findOne({_id:origin})
+    const jorDes=await Country.findOne({_id:destination})
+    await journey.save();
+
+    return res.send({
+      message: "Journey Has Been Updated.",
+      origin: jorCon.name,
+      destination: jorDes.name,
+    });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   getAllJourneyController,
   createContryController,
+  updateJourneyController,
   createJourneyController,
   updateContryController,
 };

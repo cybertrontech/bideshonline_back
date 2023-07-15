@@ -13,8 +13,10 @@ const countrySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-
+    active:{
+      type:String,
+      default:true
+    }
   },
   { timestamps: true }
 );

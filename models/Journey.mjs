@@ -14,6 +14,10 @@ const journeySchema = new mongoose.Schema(
       ref: "Country",
       required: true,
     },
+    active:{
+      type:String,
+      default:true
+    }
   },
   { timestamps: true }
 );

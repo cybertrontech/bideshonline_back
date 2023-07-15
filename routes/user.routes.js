@@ -1,5 +1,5 @@
 import express from "express"
-import { createUserController, getAllUsersController } from "../controllers/user.controller.mjs";
+import { createUserController, getAllUsersController,getUserTypeController } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
 const router=express.Router();
@@ -11,6 +11,8 @@ router.get('/',[auth,isAdmin], getAllUsersController);
 // Create a new user
 router.post('/',createUserController );
   
+// a  user type
+router.get('/user_type',auth,getUserTypeController );
   // // Get a specific user by ID
   // router.get('/users/:id', (req, res) => {
   //   const userId = req.params.id;

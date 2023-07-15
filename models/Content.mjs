@@ -17,11 +17,19 @@ const contentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Journery",
       required: true,
-
     },
     data:{
         type:String,
         required:true
+    },
+    active:{
+      type:String,
+      default:true
+    },
+    creator:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,  
     }
   },
   { timestamps: true }

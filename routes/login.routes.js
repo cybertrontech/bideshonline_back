@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Login a new user
 router.post("/", async (req, res, next) => {
-  try {
+  // try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -31,21 +31,21 @@ router.post("/", async (req, res, next) => {
         process.env.PRIVATE_KEY
       );
       // Return the token to the client
-      return res.json({ token });
+      return res.json({ token,userType:"admin"  });
     } else if (user.userType === "content") {
       const token = jwt.sign(
         { userId: user._id, isContentCreator: true },
         process.env.PRIVATE_KEY
       );
       // Return the token to the client
-      return res.json({ token });
+      return res.json({ token,userType:"content" });
     } else {
       const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY);
-      return res.json({ token });
+      return res.json({ token,userType:"normal" });
     }
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 });
 
 export default router;

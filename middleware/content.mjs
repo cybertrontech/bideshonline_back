@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { CustomError } from "../../error/CustomError.mjs";
+import { CustomError } from  "../error/CustomError.mjs";
 dotenv.config();
 
 const isContentCreator = (req, res, next) => {

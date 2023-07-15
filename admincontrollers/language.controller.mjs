@@ -1,6 +1,6 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Language } from "../models/Language.mjs";
-import {Country} from "../models/Country.mjs";
+import { Country } from "../models/Country.mjs";
 import Joi from "joi";
 import jId from "joi-objectid";
 const jObjId = jId(Joi);
@@ -95,10 +95,10 @@ const updateLanguageController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
-    const lang = await Language.findOne({ _id:req.params.languageId });
-    lang.name=name;
-    lang.country=country;
-    const c=await Country.findOne({_id:lang.country})
+    const lang = await Language.findOne({ _id: req.params.languageId });
+    lang.name = name;
+    lang.country = country;
+    const c = await Country.findOne({ _id: lang.country });
     await lang.save();
     // if (lang.length > 0) {
     //   return next(
@@ -109,7 +109,19 @@ const updateLanguageController = async (req, res, next) => {
     // const lan = new Language({ name, country });
     // await lan.save();
 
-    return res.send({ message: "Language successfully updated.",country:c.name });
+    return res.send({
+      message: "Language successfully updated.",
+      country: c.name,
+    });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const deleteLanguageController = async (req, res, next) => {
+  try {
+    await Language.findByIdAndDelete(req.params.languageId);
+    return res.send({ message: "Language successfully deleted." });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -120,4 +132,5 @@ export {
   createLanguageController,
   getLanguageControllerId,
   updateLanguageController,
+  deleteLanguageController,
 };

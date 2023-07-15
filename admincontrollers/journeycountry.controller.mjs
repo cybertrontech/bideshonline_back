@@ -1,9 +1,11 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Journery } from "../models/Journey.mjs";
 import { Country } from "../models/Country.mjs";
+import { Language } from "../models/Language.mjs";
 
 import Joi from "joi";
 import jId from "joi-objectid";
+import { Content } from "../models/Content.mjs";
 const jObjId = jId(Joi);
 
 const countryValidationSchema = Joi.object({
@@ -61,7 +63,6 @@ const createContryController = async (req, res, next) => {
 
 const updateContryController = async (req, res, next) => {
   try {
-
     const { name } = req.body;
     // Validate the request body against the schema
     const { error, value } = countryValidationSchema.validate(req.body);
@@ -158,8 +159,8 @@ const updateJourneyController = async (req, res, next) => {
     const journey = await Journery.findOne({ _id: req.params.journeyId });
     journey.origin = origin;
     journey.destination = destination;
-    const jorCon=await Country.findOne({_id:origin})
-    const jorDes=await Country.findOne({_id:destination})
+    const jorCon = await Country.findOne({ _id: origin });
+    const jorDes = await Country.findOne({ _id: destination });
     await journey.save();
 
     return res.send({
@@ -172,10 +173,32 @@ const updateJourneyController = async (req, res, next) => {
   }
 };
 
+const deleteCountryController = async (req, res, next) => {
+  try {
+    await Country.findByIdAndDelete(req.params.countryId);
+
+    return res.send({ message: "Country successfully deleted." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const deleteJourneyController = async (req, res, next) => {
+  try {
+    await Journery.findByIdAndDelete(req.params.journeyId);
+
+    return res.send({ message: "Journey successfully deleted." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   getAllJourneyController,
   createContryController,
   updateJourneyController,
   createJourneyController,
   updateContryController,
+  deleteCountryController,
+  deleteJourneyController
 };

@@ -7,6 +7,8 @@ import {
   updateJourneyController,
   getAllJourneyController,
   createJourneyController,
+  deleteCountryController,
+  deleteJourneyController
 } from "../admincontrollers/journeycountry.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -20,8 +22,9 @@ router.post(
   createContryController
 );
 
-// get all countries list
-router.get("/", [auth, isAdmin], getAllJourneyController);
+// get all journey list
+
+router.get("/", [auth], getAllJourneyController);
 
 //create journies for journey
 router.post("/", [auth, isAdmin], createJourneyController);
@@ -29,11 +32,18 @@ router.post("/", [auth, isAdmin], createJourneyController);
 //update journies for journey
 router.post("/:journeyId", [auth, isAdmin], updateJourneyController);
 
+// DATELET JOURNEY
+router.delete("/:journeyId",[auth,isAdmin],deleteJourneyController);
+
+
 // update countries
 router.post(
   "/change_country/:countryId",
   [auth, isAdmin, upload.single("image")],
   updateContryController
 );
+
+
+router.delete("/country/:countryId",[auth,isAdmin],deleteCountryController);
 
 export default router;

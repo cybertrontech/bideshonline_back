@@ -1,5 +1,7 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Content } from "../models/Content.mjs";
+import { User } from "../models/User.mjs";
+import { Contentcreatorcountry } from "../models/ContentCreatorCountry.mjs";
 import Joi from "joi";
 import jId from "joi-objectid";
 const jObjId = jId(Joi);
@@ -87,7 +89,7 @@ const createContentController = async (req, res, next) => {
 
 const updateContentController = async (req, res, next) => {
   try {
-    const {  journey, language, data } = req.body;
+    const { journey, language, data } = req.body;
     // Validate the request body against the schema
     const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -98,25 +100,67 @@ const updateContentController = async (req, res, next) => {
 
     const con = await Content.findOne({ _id: req.params.contentId });
     if (con === null) {
-      return next(
-        new CustomError(
-          404,
-          "Content doesn't exist."
-        )
-      );
+      return next(new CustomError(404, "Content doesn't exist."));
     }
-    // const cont = new Content({
-    //   tab,
-    //   journey,
-    //   language,
-    //   data,
-    // });
-    con.journey=journey;
-    con.language=language;
-    con.data=data;
+
+    con.journey = journey;
+    con.language = language;
+    con.data = data;
     await con.save();
 
     return res.send({ message: "Content sucessfully updated." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const getContentCreatorCountriesByIdController = async (req, res, next) => {
+  try {
+    const countries = await Contentcreatorcountry.find({
+      creator: req.user.userId,
+    }).populate("country");
+    const user=await User.findById(req.user.userId).select("_id email first_name last_name");
+
+
+    return res.send({countries,user});
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const createContentCreatorCountriesByIdController = async (req, res, next) => {
+  try {
+    const { country } = req.body;
+    let countryCreatorConten = await Contentcreatorcountry.findOne({
+      creator: req.user.userId,
+      country: country,
+    });
+
+    if (countryCreatorConten !== null) {
+      return next(
+        new CustomError(
+          404,
+          "This content creator is already connected to this country."
+        )
+      );
+    }
+
+    countryCreatorConten = new Contentcreatorcountry({
+      creator: req.user.userId,
+      country,
+    });
+    await countryCreatorConten.save();
+    // return res.send(countryCreatorConten);
+    return res.send({ message: "Sucessfully created." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const deleteContentCreatorCountriesByIdController = async (req, res, next) => {
+  try {
+    await Contentcreatorcountry.findByIdAndDelete(req.params.contentCountryId);
+    return res.send({ message: "Sucessfully deleted." });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -126,5 +170,8 @@ export {
   getContentController,
   createContentController,
   getContentByIdController,
-  updateContentController
+  updateContentController,
+  getContentCreatorCountriesByIdController,
+  createContentCreatorCountriesByIdController,
+  deleteContentCreatorCountriesByIdController,
 };

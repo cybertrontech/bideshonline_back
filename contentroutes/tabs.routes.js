@@ -9,16 +9,16 @@ import { upload } from "../adminutils/image.upload.mjs"
 const router=express.Router();
 
 //get all tabs
-router.get('/',[auth,isAdmin],getTabsController);
+router.get('/',[auth,isContentCreator],getTabsController);
 
 
 
-router.get('/',[auth,isAdmin],getTabsController);
+// router.get('/',[auth,isAdmin],getTabsController);
 
 // create tabs 
-router.post('/',[auth,isAdmin,upload.single("tab-image")],createTabsController);
+// router.post('/',[auth,isAdmin,upload.single("tab-image")],createTabsController);
 
 // update tabs status
-router.get('/activate/:tabId',[auth,isAdmin],activateDeactivateTabController);
+// router.get('/activate/:tabId',[auth,isAdmin],activateDeactivateTabController);
 
 export default router

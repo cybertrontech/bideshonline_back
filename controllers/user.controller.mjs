@@ -12,7 +12,8 @@ const userValidationSchema = Joi.object({
 });
 
 const getAllUsersController = (req, res, next) => {
-  User.find({}).select("-password -deviceId -__v")
+  User.find({})
+    .select("-password -deviceId -__v")
     .then((users) => {
       return res.status(200).json(users);
     })
@@ -60,4 +61,15 @@ const createUserController = async (req, res, next) => {
   }
 };
 
-export { createUserController, getAllUsersController };
+const getUserTypeController = async (req, res, next) => {
+  try {
+    const user =await User.findById(req.user.userId).select("userType")
+    // console.log(user);
+    return res.send({type:user});
+  } catch (e) {
+    console.log(e);
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+export { createUserController, getAllUsersController, getUserTypeController };

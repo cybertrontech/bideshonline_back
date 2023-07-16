@@ -32,7 +32,8 @@ const getContentController = async (req, res, next) => {
           select: "_id name",
         },
       })
-      .populate("language");
+      .populate("language")
+      .populate({path:"creator",select:"_id first_name last_name"})
     return res.send(content);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -54,7 +55,7 @@ const getContentByIdController = async (req, res, next) => {
 };
 
 const createContentController = async (req, res, next) => {
-  try {
+  // try {
     const { tab, journey, language, data } = req.body;
     // Validate the request body against the schema
     const { error } = contentValidationSchema.validate(req.body);
@@ -78,13 +79,14 @@ const createContentController = async (req, res, next) => {
       journey,
       language,
       data,
+      creator:req.user.userId
     });
     await cont.save();
 
     return res.send({ message: "Content sucessfully created." });
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 };
 
 const updateContentController = async (req, res, next) => {

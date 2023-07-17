@@ -33,7 +33,7 @@ const getContentController = async (req, res, next) => {
         },
       })
       .populate("language")
-      .populate({path:"creator",select:"_id first_name last_name"})
+      .populate({ path: "creator", select: "_id first_name last_name" });
     return res.send(content);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -56,34 +56,34 @@ const getContentByIdController = async (req, res, next) => {
 
 const createContentController = async (req, res, next) => {
   // try {
-    const { tab, journey, language, data } = req.body;
-    // Validate the request body against the schema
-    const { error } = contentValidationSchema.validate(req.body);
+  const { tab, journey, language, data } = req.body;
+  // Validate the request body against the schema
+  const { error } = contentValidationSchema.validate(req.body);
 
-    // Check for validation errors
-    if (error) {
-      return next(new CustomError(400, error.details[0].message));
-    }
+  // Check for validation errors
+  if (error) {
+    return next(new CustomError(400, error.details[0].message));
+  }
 
-    const con = await Content.find({ journey: journey, tab: tab });
-    if (con.length > 0) {
-      return next(
-        new CustomError(
-          404,
-          "Content with this journey and language already exists."
-        )
-      );
-    }
-    const cont = new Content({
-      tab,
-      journey,
-      language,
-      data,
-      creator:req.user.userId
-    });
-    await cont.save();
+  const con = await Content.find({ journey: journey, tab: tab });
+  if (con.length > 0) {
+    return next(
+      new CustomError(
+        404,
+        "Content with this journey and language already exists."
+      )
+    );
+  }
+  const cont = new Content({
+    tab,
+    journey,
+    language,
+    data,
+    creator: req.user.userId,
+  });
+  await cont.save();
 
-    return res.send({ message: "Content sucessfully created." });
+  return res.send({ message: "Content sucessfully created." });
   // } catch (e) {
   //   return next(new CustomError(500, "Something Went Wrong!"));
   // }
@@ -121,10 +121,15 @@ const getContentCreatorCountriesByIdController = async (req, res, next) => {
     const countries = await Contentcreatorcountry.find({
       creator: req.user.userId,
     }).populate("country");
-    const user=await User.findById(req.user.userId).select("_id email first_name last_name");
+    const user = await User.findById(req.params.userId).select(
+      "_id email first_name last_name userType"
+    );
+    console.log(user);
+    if (user === null || user.userType !== "content") {
+      return next(new CustomError(404, "This creator doesn't exist."));
+    }
 
-
-    return res.send({countries,user});
+    return res.send({ countries, user });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }

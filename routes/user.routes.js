@@ -1,5 +1,5 @@
 import express from "express"
-import { createUserController, getAllUsersController,getUserTypeController } from "../controllers/user.controller.mjs";
+import { createUserController,editUserController,createUserControllerByAdmin, getAllUsersController,getUserTypeController } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
 const router=express.Router();
@@ -8,11 +8,17 @@ const router=express.Router();
 // Get all users
 router.get('/',[auth,isAdmin], getAllUsersController);
 
+// edit users by admin
+router.put('/:userId',[auth,isAdmin], editUserController);
+
 // Create a new user
 router.post('/',createUserController );
+
+// Create a new user
+router.post('/by-admin',createUserControllerByAdmin );
   
 // a  user type
-router.get('/user_type',auth,getUserTypeController );
+router.get('/user_type',[auth,isAdmin],getUserTypeController );
   // // Get a specific user by ID
   // router.get('/users/:id', (req, res) => {
   //   const userId = req.params.id;

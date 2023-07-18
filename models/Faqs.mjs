@@ -1,15 +1,13 @@
 import mongoose from "mongoose";
 
 // Define the country schema
-
-const countrySchema = new mongoose.Schema(
+const fqsSchema = new mongoose.Schema(
   {
-    name: {
+    question: {
       type: String,
       required: true,
-      unique:true
     },
-    image: {
+    answer: {
       type: String,
       required: true,
     },
@@ -22,6 +20,6 @@ const countrySchema = new mongoose.Schema(
 );
 
 // Create the User model
-const Country = mongoose.model("Country", countrySchema);
+const Faqs = mongoose.model("Faqs", fqsSchema);
 
-export  {Country};
+export  {Faqs};

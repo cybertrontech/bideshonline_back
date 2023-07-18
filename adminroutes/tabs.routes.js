@@ -11,8 +11,6 @@ const router=express.Router();
 //get all tabs
 router.get('/',[auth,isAdmin],getTabsController);
 
-
-
 router.get('/',[auth,isAdmin],getTabsController);
 
 // create tabs 

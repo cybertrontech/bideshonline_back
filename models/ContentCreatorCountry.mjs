@@ -15,7 +15,7 @@ const contentCreatorcountrySchema = new mongoose.Schema(
       required: true,
     },
     active: {
-      type: String,
+      type: Boolean,
       default: true,
     },
   },

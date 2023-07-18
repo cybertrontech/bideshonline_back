@@ -1,9 +1,11 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Content } from "../models/Content.mjs";
-import { User } from "../models/User.mjs";
+import { DestinationUser, User } from "../models/User.mjs";
 import { Contentcreatorcountry } from "../models/ContentCreatorCountry.mjs";
 import Joi from "joi";
 import jId from "joi-objectid";
+import { Journery } from "../models/Journey.mjs";
+import { Notification } from "../models/Notification.mjs";
 const jObjId = jId(Joi);
 
 const contentValidationSchema = Joi.object({
@@ -57,12 +59,17 @@ const getContentByIdController = async (req, res, next) => {
 const createContentController = async (req, res, next) => {
   // try {
   const { tab, journey, language, data } = req.body;
+  const notifications = [];
   // Validate the request body against the schema
   const { error } = contentValidationSchema.validate(req.body);
 
   // Check for validation errors
   if (error) {
     return next(new CustomError(400, error.details[0].message));
+  }
+  const jor = await Journery.findById(req.journey);
+  if (jor === null) {
+    new CustomError(404, "This journey doesn't exist.");
   }
 
   const con = await Content.find({ journey: journey, tab: tab });
@@ -74,6 +81,10 @@ const createContentController = async (req, res, next) => {
       )
     );
   }
+
+  const destUsers = await DestinationUser.find({
+    destination: jor.destination,
+  });
   const cont = new Content({
     tab,
     journey,
@@ -81,6 +92,13 @@ const createContentController = async (req, res, next) => {
     data,
     creator: req.user.userId,
   });
+
+  for (let i = 0; destUsers.length; i++) {
+    notifications.push({ user: destUsers[i].user, content: cont._id });
+  }
+
+  await Notification.insertMany(notifications);
+
   await cont.save();
 
   return res.send({ message: "Content sucessfully created." });

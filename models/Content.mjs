@@ -18,10 +18,22 @@ const contentSchema = new mongoose.Schema(
       ref: "Journery",
       required: true,
     },
+    title:{
+        type:String,
+        default:"",
+        required:true
+    },
+    background_image:{
+      type:String,
+      default:"",
+      required:true
+  },
+
     data:{
         type:String,
         required:true
     },
+
     active:{
       type:Boolean,
       default:true

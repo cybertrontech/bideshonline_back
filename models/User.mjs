@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 // Define the user schema
 const userSchema = new mongoose.Schema(
   {
@@ -10,9 +11,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    verified:{
-      type:Boolean,
-      default:false
+    verified: {
+      type: Boolean,
+      default: false,
     },
     email: {
       type: String,
@@ -36,18 +37,45 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "content", "normal"],
       default: "normal",
     },
+    origin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Country",
+    },
+    image: {
+      type: String,
+      default: "",
+    },
     deviceId: {
-        type: String
-      },
-    active:{
-        type:Boolean,
-        default:true
-      }
+      type: String,
+    },
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
 
+const destinationUserSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    destination: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Country",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 // Create the User model
 const User = mongoose.model("User", userSchema);
+const DestinationUser = mongoose.model(
+  "DestinationUser",
+  destinationUserSchema
+);
 
-export  {User};
+export { User, DestinationUser };

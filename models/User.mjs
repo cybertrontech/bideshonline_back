@@ -73,6 +73,7 @@ const destinationUserSchema = new mongoose.Schema(
 );
 // Create the User model
 const User = mongoose.model("User", userSchema);
+
 const DestinationUser = mongoose.model(
   "DestinationUser",
   destinationUserSchema

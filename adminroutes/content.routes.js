@@ -2,7 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 dotenv.config()
 import {auth} from "../middleware/auth.mjs"
-import { createContentController, getContentByIdController,deleteContentCreatorCountriesByIdController,createContentCreatorCountriesByIdController,getContentCreatorCountriesByIdController, getContentController,updateContentController } from "../admincontrollers/content.controller.mjs";
+import { createContentController, getContentByIdController,deleteContentController,deleteContentCreatorCountriesByIdController,createContentCreatorCountriesByIdController,getContentCreatorCountriesByIdController, getContentController,updateContentController } from "../admincontrollers/content.controller.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
 const router=express.Router();
 
@@ -25,6 +25,10 @@ router.delete('/content-creator/:contentCountryId',[auth,isAdmin],deleteContentC
 
 // create tabs 
 router.post('/:tabId',[auth,isAdmin],createContentController);
+
+
+// delete tabs  id
+router.delete('/:tabId',[auth,isAdmin],deleteContentController);
 
 //update tabs
 router.post('/content/:contentId',[auth,isAdmin],updateContentController);

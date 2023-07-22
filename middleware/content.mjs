@@ -13,7 +13,7 @@ const isContentCreator = (req, res, next) => {
     if (isContentCreator) {
       return next();
     }
-
+  
     return next(
       new CustomError(403, `You are not authorized to perform this action.`)
     );

@@ -12,7 +12,7 @@ router.post("/", async (req, res, next) => {
   // try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email,verified:true });
 
     if (!user) {
       return next(new CustomError(401, "Invalid email or password"));

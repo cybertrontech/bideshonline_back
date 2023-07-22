@@ -1,15 +1,21 @@
 import express from "express"
-import { createUserController,editUserController,createUserControllerByAdmin, getAllUsersController,getUserTypeController } from "../controllers/user.controller.mjs";
+import { createUserController,editUserController,editUserStatusController,createUserControllerByAdmin, getAllUsersController,getUserTypeController } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
 const router=express.Router();
 
-  
-// Get all users
-router.get('/',[auth,isAdmin], getAllUsersController);
+// a  user type
+router.get('/user_type',auth,getUserTypeController );
+
+
+  // Get all users
+router.get('/:userType',[auth,isAdmin], getAllUsersController);
 
 // edit users by admin
 router.put('/:userId',[auth,isAdmin], editUserController);
+
+// edit users status by admin
+router.get('/user-status/:userId',[auth,isAdmin], editUserStatusController);
 
 // Create a new user
 router.post('/',createUserController );
@@ -17,8 +23,6 @@ router.post('/',createUserController );
 // Create a new user
 router.post('/by-admin',createUserControllerByAdmin );
   
-// a  user type
-router.get('/user_type',[auth,isAdmin],getUserTypeController );
   // // Get a specific user by ID
   // router.get('/users/:id', (req, res) => {
   //   const userId = req.params.id;

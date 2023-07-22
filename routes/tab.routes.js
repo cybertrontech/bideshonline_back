@@ -45,7 +45,6 @@ router.get(
         //   tab: req.params.tabId,
         //   journey
       })
-
         .populate({ path: "language", select: { name: 1 } })
         .populate({path:"creator",select:{first_name:1,last_name:1}})
         .select("-__v -active");

@@ -17,6 +17,7 @@ const auth = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (e) {
+    console.log(e);
     return next(new CustomError(403,`${e.message}`))
   }
 

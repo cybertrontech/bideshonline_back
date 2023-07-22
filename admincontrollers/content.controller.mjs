@@ -1,14 +1,16 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Content } from "../models/Content.mjs";
+import { ObjectId } from "mongoose";
 import { DestinationUser, User } from "../models/User.mjs";
 import { Contentcreatorcountry } from "../models/ContentCreatorCountry.mjs";
 import Joi from "joi";
-import jId from "joi-objectid";
 import { Journery } from "../models/Journey.mjs";
 import { Notification } from "../models/Notification.mjs";
+import jId from "joi-objectid";
 const jObjId = jId(Joi);
 
 const contentValidationSchema = Joi.object({
+  title: Joi.string().required(),
   tab: jObjId(),
   journey: jObjId(),
   language: jObjId(),
@@ -16,6 +18,7 @@ const contentValidationSchema = Joi.object({
 });
 
 const contentUpdateValidationSchema = Joi.object({
+  title: Joi.string().required(),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
@@ -58,7 +61,7 @@ const getContentByIdController = async (req, res, next) => {
 
 const createContentController = async (req, res, next) => {
   // try {
-  const { tab, journey, language, data } = req.body;
+  const { tab, journey, language, data, title } = req.body;
   const notifications = [];
   // Validate the request body against the schema
   const { error } = contentValidationSchema.validate(req.body);
@@ -67,9 +70,13 @@ const createContentController = async (req, res, next) => {
   if (error) {
     return next(new CustomError(400, error.details[0].message));
   }
-  const jor = await Journery.findById(req.journey);
+  console.log(journey);
+  const jor = await Journery.findById(journey);
+
+  console.log(jor);
+
   if (jor === null) {
-    new CustomError(404, "This journey doesn't exist.");
+    return next(new CustomError(404, "This journey doesn't exist."));
   }
 
   const con = await Content.find({ journey: journey, tab: tab });
@@ -85,12 +92,14 @@ const createContentController = async (req, res, next) => {
   const destUsers = await DestinationUser.find({
     destination: jor.destination,
   });
+
   const cont = new Content({
     tab,
     journey,
     language,
     data,
     creator: req.user.userId,
+    title,
   });
 
   for (let i = 0; destUsers.length; i++) {
@@ -109,7 +118,7 @@ const createContentController = async (req, res, next) => {
 
 const updateContentController = async (req, res, next) => {
   try {
-    const { journey, language, data } = req.body;
+    const { journey, language, data,title } = req.body;
     // Validate the request body against the schema
     const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -123,9 +132,11 @@ const updateContentController = async (req, res, next) => {
       return next(new CustomError(404, "Content doesn't exist."));
     }
 
+
     con.journey = journey;
     con.language = language;
     con.data = data;
+    con.title=title;
     await con.save();
 
     return res.send({ message: "Content sucessfully updated." });
@@ -137,8 +148,9 @@ const updateContentController = async (req, res, next) => {
 const getContentCreatorCountriesByIdController = async (req, res, next) => {
   try {
     const countries = await Contentcreatorcountry.find({
-      creator: req.user.userId,
+      creator: req.params.userId,
     }).populate("country");
+
     const user = await User.findById(req.params.userId).select(
       "_id email first_name last_name userType"
     );
@@ -157,7 +169,7 @@ const createContentCreatorCountriesByIdController = async (req, res, next) => {
   try {
     const { country } = req.body;
     let countryCreatorConten = await Contentcreatorcountry.findOne({
-      creator: req.user.userId,
+      creator: req.params.userId,
       country: country,
     });
 
@@ -171,7 +183,7 @@ const createContentCreatorCountriesByIdController = async (req, res, next) => {
     }
 
     countryCreatorConten = new Contentcreatorcountry({
-      creator: req.user.userId,
+      creator: req.params.userId,
       country,
     });
     await countryCreatorConten.save();
@@ -191,6 +203,15 @@ const deleteContentCreatorCountriesByIdController = async (req, res, next) => {
   }
 };
 
+const deleteContentController = async (req, res, next) => {
+  try {
+    await Content.findByIdAndDelete(req.params.tabId);
+    return res.send({ message: "Sucessfully deleted." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   getContentController,
   createContentController,
@@ -199,4 +220,5 @@ export {
   getContentCreatorCountriesByIdController,
   createContentCreatorCountriesByIdController,
   deleteContentCreatorCountriesByIdController,
+  deleteContentController,
 };

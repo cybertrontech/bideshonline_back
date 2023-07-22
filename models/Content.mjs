@@ -26,7 +26,6 @@ const contentSchema = new mongoose.Schema(
     background_image:{
       type:String,
       default:"",
-      required:true
   },
 
     data:{

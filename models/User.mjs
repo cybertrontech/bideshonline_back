@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema(
     },
     verified: {
       type: Boolean,
-      default: false,
+      // default: false,
+      default: true,
     },
     email: {
       type: String,
@@ -40,6 +41,11 @@ const userSchema = new mongoose.Schema(
     origin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Country",
+
+    },
+    language:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Language",
     },
     image: {
       type: String,

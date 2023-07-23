@@ -41,7 +41,7 @@ router.post("/", async (req, res, next) => {
       return res.json({ token,userType:"content" });
     } else {
       const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY);
-      return res.json({ token,userType:"normal" });
+      return res.json({ token,userType:"normal",language:user.language,origin:user.origin });
     }
   // } catch (e) {
   //   return next(new CustomError(500, "Something Went Wrong!"));

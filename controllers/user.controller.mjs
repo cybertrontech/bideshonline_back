@@ -13,6 +13,7 @@ const userValidationSchema = Joi.object({
   deviceId: Joi.string().allow("").optional(),
   origin: Joi.string().required(),
   destination: Joi.array().items(Joi.string()).required(),
+  language:Joi.string().required()
 });
 
 const userValidationAdminSchema = Joi.object({
@@ -74,10 +75,12 @@ const createUserController = async (req, res, next) => {
       deviceId,
       origin,
       destination,
+      language,
     } = req.body;
     // Validate the request body against the schema
     const { error, value } = userValidationSchema.validate(req.body);
-    console.log(value);
+    // console.log(value);
+
     const destinations = [];
 
     // Check for validation errors
@@ -102,14 +105,15 @@ const createUserController = async (req, res, next) => {
       userType: "normal",
       deviceId,
       origin,
+      language
     });
 
     for (let i = 0; i < destination.length; i++) {
-      destinations.push({ user: newUser._id, destination: destinations[i] });
+      destinations.push({ user: newUser._id, destination: destination[i] });
     }
 
     newUser = await newUser.save();
-    await DestinationUser.insertMany(newUser);
+    await DestinationUser.insertMany(destinations);
 
     return res.status(200).json({ message: "Successfully Registered." });
   } catch (e) {

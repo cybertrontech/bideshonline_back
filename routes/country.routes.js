@@ -10,7 +10,7 @@ const router=express.Router();
 
   
 // get all countries list 
-router.get('/',auth,getAllCountryController);
+router.get('/',getAllCountryController);
 
 
 export default router

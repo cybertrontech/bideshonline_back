@@ -9,7 +9,7 @@ const fqsSchema = new mongoose.Schema(
     },
     answer: {
       type: String,
-      required: true,
+      default:"",
     },
     active:{
       type:Boolean,

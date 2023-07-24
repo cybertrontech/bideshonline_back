@@ -13,7 +13,7 @@ const userValidationSchema = Joi.object({
   deviceId: Joi.string().allow("").optional(),
   origin: Joi.string().required(),
   destination: Joi.array().items(Joi.string()).required(),
-  language:Joi.string().required()
+  language: Joi.string().required(),
 });
 
 const userValidationAdminSchema = Joi.object({
@@ -105,7 +105,7 @@ const createUserController = async (req, res, next) => {
       userType: "normal",
       deviceId,
       origin,
-      language
+      language,
     });
 
     for (let i = 0; i < destination.length; i++) {
@@ -207,6 +207,60 @@ const editUserStatusController = async (req, res, next) => {
   }
 };
 
+const editFrontUserController = async (req, res, next) => {
+  try {
+    const { first_name, last_name, email, origin, language } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (user === null) {
+      return next(new CustomError(404, "User doesn't exist."));
+    }
+
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.email = email;
+    user.origin = origin;
+    user.language = language;
+    await user.save();
+
+    // return res.send(user);
+
+    return res.status(200).json({
+      message: "Successfully updated your profile.",
+    });
+    // return res.send("edited");
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+
+
+const editFrontUserWithImageController = async (req, res, next) => {
+  try {
+    const { first_name, last_name, email, origin,language } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (user === null) {
+      return next(new CustomError(404, "User doesn't exist."));
+    }
+    const path = req.file?.path;
+
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.email = email;
+    user.origin = origin;
+    user.language = language;
+    user.image=path;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Successfully updated your profile.",
+    });
+    // return res.send("edited");
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   createUserController,
   editUserStatusController,
@@ -214,4 +268,6 @@ export {
   getAllUsersController,
   getUserTypeController,
   editUserController,
+  editFrontUserController,
+  editFrontUserWithImageController
 };

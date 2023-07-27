@@ -8,11 +8,15 @@ import {
   createFaqsController,
   updateFaqsController,
   deleteFaqsController,
+  createFaqsAdminController
 } from "../admincontrollers/faqs.controller.mjs";
 const router = express.Router();
 
 //get all faqs
 router.get("/", [auth], getFaqsController);
+
+//
+router.post("/for-admin", [auth,isAdmin], createFaqsAdminController);
 
 //create new faq
 router.post("/", [auth], createFaqsController);

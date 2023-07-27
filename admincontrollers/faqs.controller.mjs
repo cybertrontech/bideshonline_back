@@ -6,6 +6,11 @@ const createFaqSchema = Joi.object({
   question: Joi.string().required(),
 });
 
+const createFaqAdminSchema = Joi.object({
+  question: Joi.string().required(),
+  answer: Joi.string().required(),
+});
+
 const getFaqsController = async (req, res, next) => {
   try {
     const faqs = await Faqs.find({active:true}).select("-__v -active");
@@ -34,6 +39,29 @@ const createFaqsController = async (req, res, next) => {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
+
+const createFaqsAdminController = async (req, res, next) => {
+  try {
+    const { question,answer } = req.body;
+    const { error, value } = createFaqAdminSchema.validate(req.body);
+
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+
+    const faq = new Faqs({
+      question,
+      answer
+    });
+    await faq.save();
+    return res.send({...faq._doc});
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+
 
 const updateFaqsController = async (req, res, next) => {
   try {
@@ -66,4 +94,5 @@ export {
   createFaqsController,
   updateFaqsController,
   deleteFaqsController,
+  createFaqsAdminController
 };

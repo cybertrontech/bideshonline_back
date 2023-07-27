@@ -24,7 +24,9 @@ import cors from "cors"
 dotenv.config();
 const app=express();
 connectDb();
-app.use(cors())
+app.use(cors({
+  origin:"*",
+}))
 app.use(express.json());
 
 app.get("/",auth,(req,res,next)=>{

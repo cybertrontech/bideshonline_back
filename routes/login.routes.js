@@ -26,12 +26,19 @@ router.post("/", async (req, res, next) => {
     }
     // Create and sign a JWT token
     if (user.userType === "admin") {
+
       const token = jwt.sign(
         { userId: user._id, isAdmin: true },
         process.env.PRIVATE_KEY
       );
+      console.log("*********");
+      console.log("*********");
+      console.log(user);
+      console.log("*********");
+      console.log("*********");
+
       // Return the token to the client
-      return res.json({ token,userType:"admin"  });
+      return res.json({ token,userType:"admin",language:user.language,origin:user.origin  });
     } else if (user.userType === "content") {
       const token = jwt.sign(
         { userId: user._id, isContentCreator: true },

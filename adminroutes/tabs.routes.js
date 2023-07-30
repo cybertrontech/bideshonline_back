@@ -4,7 +4,7 @@ dotenv.config()
 import { isContentCreator } from "../middleware/content.mjs"
 import {auth} from "../middleware/auth.mjs"
 import { isAdmin } from "../middleware/admin.mjs"
-import { createTabsController,activateDeactivateTabController,getTabsController } from "../admincontrollers/tabs.controller.mjs"
+import { createTabsController,activateDeactivateTabController,deleteTabsController,getTabsController } from "../admincontrollers/tabs.controller.mjs"
 import { upload } from "../adminutils/image.upload.mjs"
 const router=express.Router();
 
@@ -18,5 +18,8 @@ router.post('/',[auth,isAdmin,upload.single("tab-image")],createTabsController);
 
 // update tabs status
 router.get('/activate/:tabId',[auth,isAdmin],activateDeactivateTabController);
+
+//delete tabs
+router.delete('/:tabId',[auth,isAdmin],deleteTabsController);
 
 export default router

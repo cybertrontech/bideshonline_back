@@ -13,6 +13,7 @@ import countryRouter from "./routes/country.routes.js"
 import journeyRouter from "./adminroutes/journeycountry.routes.js"
 import dataRouter from "./adminroutes/data.routes.js"
 import tabsRouter from "./adminroutes/tabs.routes.js"
+import infoRouter from "./adminroutes/info.routes.js"
 import tabsFrontRouter from "./routes/tab.routes.js";
 import faqsRouter from "./adminroutes/faqs.routes.js";
 import tabsRouterContent from "./contentroutes/tabs.routes.js"
@@ -43,6 +44,9 @@ app.use('/uploads', express.static('uploads'));
 app.use('/faqs', faqsRouter);
 app.use("/tabs",tabsFrontRouter);
 app.use("/admin/journey",journeyRouter);
+
+app.use("/admin/info",infoRouter);
+
 app.use("/admin/stats",dataRouter);
 app.use("/admin/tabs",tabsRouter);
 app.use("/content/tabs",tabsRouterContent);

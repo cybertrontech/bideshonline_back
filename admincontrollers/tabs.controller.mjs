@@ -49,8 +49,18 @@ const activateDeactivateTabController = async (req, res, next) => {
   }
 };
 
+const deleteTabsController=async (req, res, next) => {
+  try {
+    await Tabs.findOneAndDelete({ _id: req.params.tabId });
+    return res.send({ message: "Successfully deleted the tab." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   createTabsController,
   getTabsController,
   activateDeactivateTabController,
+  deleteTabsController
 };

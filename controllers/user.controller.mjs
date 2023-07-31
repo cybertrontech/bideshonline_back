@@ -173,11 +173,13 @@ const getUserTypeController = async (req, res, next) => {
 
 const editUserController = async (req, res, next) => {
   // try{
-  const { first_name, last_name, type } = req.body;
+  const { first_name, last_name, type,origin,email } = req.body;
   const user = await User.findById(req.params.userId);
   user.first_name = first_name;
   user.last_name = last_name;
   user.userType = type;
+  user.origin = origin;
+  user.email=email;
   await user.save();
   return res.status(200).json({ message: "Successfully Updated." });
   // return res.send("edited");

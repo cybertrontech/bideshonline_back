@@ -102,11 +102,11 @@ const createContentController = async (req, res, next) => {
     title,
   });
 
-  for (let i = 0; destUsers.length; i++) {
-    notifications.push({ user: destUsers[i].user, content: cont._id });
-  }
+  // for (let i = 0; destUsers.length; i++) {
+  //   notifications.push({ user: destUsers[i].user, content: cont._id });
+  // }
 
-  await Notification.insertMany(notifications);
+  // await Notification.insertMany(notifications);
 
   await cont.save();
 

@@ -10,6 +10,7 @@ import {
   getContentController,
   updateContentController,
 } from "../admincontrollers/content.controller.mjs";
+// import {Contentcreatorcountry} from "../models/ContentCreatorCountry.mjs"
 import { isAdmin } from "../middleware/admin.mjs";
 import { Content } from "../models/Content.mjs";
 import Joi from "joi";
@@ -180,40 +181,59 @@ router.post("/:tabId", [auth, isContentCreator], async (req, res, next) => {
 });
 
 // //update tabs
-router.post("/content/:contentId", [auth, isContentCreator], async (req, res, next) => {
-  try {
-    const { journey, language, data,title } = req.body;
-    // Validate the request body against the schema
-    const { error } = contentUpdateValidationSchema.validate(req.body);
+router.post(
+  "/content/:contentId",
+  [auth, isContentCreator],
+  async (req, res, next) => {
+    try {
+      const { journey, language, data, title } = req.body;
+      // Validate the request body against the schema
+      const { error } = contentUpdateValidationSchema.validate(req.body);
 
-    // Check for validation errors
-    if (error) {
-      return next(new CustomError(400, error.details[0].message));
+      // Check for validation errors
+      if (error) {
+        return next(new CustomError(400, error.details[0].message));
+      }
+
+      const con = await Content.findOne({ _id: req.params.contentId });
+      if (con === null) {
+        return next(new CustomError(404, "Content doesn't exist."));
+      }
+
+      const a = con.creator.toString();
+      const b = new ObjectId(req.user.userId).toString();
+
+      if (a !== b) {
+        return next(new CustomError(403, "You can't perform this action bro."));
+      }
+
+      con.journey = journey;
+      con.language = language;
+      con.data = data;
+      con.title = title;
+      await con.save();
+
+      return res.send({ message: "Content sucessfully updated." });
+    } catch (e) {
+      return next(new CustomError(500, "Something Went Wrong!"));
     }
-
-    const con = await Content.findOne({ _id: req.params.contentId });
-    if (con === null) {
-      return next(new CustomError(404, "Content doesn't exist."));
-    }
-
-    const a = con.creator.toString();
-    const b = new ObjectId(req.user.userId).toString();
-
-    if (a !== b) {
-      return next(new CustomError(403, "You can't perform this action bro."));
-    }
-
-
-    con.journey = journey;
-    con.language = language;
-    con.data = data;
-    con.title=title;
-    await con.save();
-
-    return res.send({ message: "Content sucessfully updated." });
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
   }
-});
+);
+
+router.post(
+  "/get-countries",
+  [auth, isContentCreator],
+  async (req, res, next) => {
+    try {
+    const courintes=await Contentcreatorcountry.find({creator:req.user.userId});
+    return res.send(courintes);
+
+    } catch (e) {
+      return next(new CustomError(500, "Something Went Wrong!"));
+    }
+
+
+  }
+);
 
 export default router;

@@ -42,10 +42,10 @@ router.get(
   [auth, isContentCreator],
   async (req, res, next) => {
     try {
-      const contentCreatorCountry = await Contentcreatorcountry.find({
-        creator: req.user.userId,
-      });
-      console.log(contentCreatorCountry);
+      // const contentCreatorCountry = await Contentcreatorcountry.find({
+      //   creator: req.user.userId,
+      // });
+      // console.log(contentCreatorCountry);
 
       const journey = await Journery.aggregate([
         {
@@ -225,14 +225,13 @@ router.post(
   [auth, isContentCreator],
   async (req, res, next) => {
     try {
-    const courintes=await Contentcreatorcountry.find({creator:req.user.userId});
-    return res.send(courintes);
-
+      const courintes = await Contentcreatorcountry.find({
+        creator: req.user.userId,
+      });
+      return res.send(courintes);
     } catch (e) {
       return next(new CustomError(500, "Something Went Wrong!"));
     }
-
-
   }
 );
 

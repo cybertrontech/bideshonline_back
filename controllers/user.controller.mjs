@@ -25,7 +25,9 @@ const userValidationAdminSchema = Joi.object({
   deviceId: Joi.string().allow("").optional(),
 });
 
-const getAllUsersController = (req, res, next) => {
+
+
+const getAllUsersController = async (req, res, next) => {
   const userType = req.params.userType;
   if (userType === "n") {
     User.find({ userType: "normal" })
@@ -173,13 +175,13 @@ const getUserTypeController = async (req, res, next) => {
 
 const editUserController = async (req, res, next) => {
   // try{
-  const { first_name, last_name, type,origin,email } = req.body;
+  const { first_name, last_name, type, origin, email } = req.body;
   const user = await User.findById(req.params.userId);
   user.first_name = first_name;
   user.last_name = last_name;
   user.userType = type;
   user.origin = origin;
-  user.email=email;
+  user.email = email;
   await user.save();
   return res.status(200).json({ message: "Successfully Updated." });
   // return res.send("edited");
@@ -235,11 +237,9 @@ const editFrontUserController = async (req, res, next) => {
   }
 };
 
-
-
 const editFrontUserWithImageController = async (req, res, next) => {
   try {
-    const { first_name, last_name, email, origin,language } = req.body;
+    const { first_name, last_name, email, origin, language } = req.body;
     const user = await User.findById(req.user.userId);
     if (user === null) {
       return next(new CustomError(404, "User doesn't exist."));
@@ -251,7 +251,7 @@ const editFrontUserWithImageController = async (req, res, next) => {
     user.email = email;
     user.origin = origin;
     user.language = language;
-    user.image=path;
+    user.image = path;
     await user.save();
 
     return res.status(200).json({
@@ -271,5 +271,5 @@ export {
   getUserTypeController,
   editUserController,
   editFrontUserController,
-  editFrontUserWithImageController
+  editFrontUserWithImageController,
 };

@@ -32,8 +32,20 @@ const getDestinationCountryController = async (req, res, next) => {
   }
 };
 
+const getDestinationCountryControllerByUser = async (req, res, next) => {
+  try {
+    const countries = await DestinationUser.find({user:req.params.userId})
+      .populate({ path: "destination", select: "_id name" })
+      .select("-__v -user");
+    return res.send(countries);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   getAllCountryController,
   getLanguageByCountryController,
   getDestinationCountryController,
+  getDestinationCountryControllerByUser
 };

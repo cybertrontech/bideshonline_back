@@ -6,7 +6,7 @@ dotenv.config();
 import {
   getAllCountryController,
   getLanguageByCountryController,
-  getDestinationCountryController
+  getDestinationCountryController,getDestinationCountryControllerByUser
 } from "../controllers/country.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -20,6 +20,9 @@ router.get("/language/:countryId", getLanguageByCountryController);
 
 // get user country destination 
 router.get("/destination",[auth], getDestinationCountryController);
+
+// get user country destination  and user
+router.get("/user-destination/:userId",[auth], getDestinationCountryControllerByUser);
 
 
 

@@ -83,9 +83,6 @@ app.use("/uploads", express.static("uploads"));
 app.use("/faqs", faqsRouter);
 app.use("/tabs", tabsFrontRouter);
 app.use("/admin/journey", journeyRouter);
-
-app.use("/admin/info", infoRouter);
-
 app.use("/admin/stats", dataRouter);
 app.use("/admin/tabs", tabsRouter);
 app.use("/content/tabs", tabsRouterContent);

@@ -23,7 +23,7 @@ router.post('/content-creator/:userId',[auth,isAdmin],createContentCreatorCountr
 router.delete('/content-creator/:contentCountryId',[auth,isAdmin],deleteContentCreatorCountriesByIdController);
 
 
-// create tabs 
+// create content tabwise 
 router.post('/:tabId',[auth,isAdmin],createContentController);
 
 

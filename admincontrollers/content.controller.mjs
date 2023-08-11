@@ -11,6 +11,7 @@ const jObjId = jId(Joi);
 
 const contentValidationSchema = Joi.object({
   title: Joi.string().required(),
+  youtube_video_link: Joi.string().allow(''),
   tab: jObjId(),
   journey: jObjId(),
   language: jObjId(),
@@ -19,6 +20,7 @@ const contentValidationSchema = Joi.object({
 
 const contentUpdateValidationSchema = Joi.object({
   title: Joi.string().required(),
+  youtube_video_link: Joi.string().allow(''),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
@@ -61,7 +63,7 @@ const getContentByIdController = async (req, res, next) => {
 
 const createContentController = async (req, res, next) => {
   // try {
-  const { tab, journey, language, data, title } = req.body;
+  const { tab, journey, language, data, title,youtube_video_link } = req.body;
   const notifications = [];
   // Validate the request body against the schema
   const { error } = contentValidationSchema.validate(req.body);
@@ -100,6 +102,7 @@ const createContentController = async (req, res, next) => {
     data,
     creator: req.user.userId,
     title,
+    youtube_video_link
   });
 
   // for (let i = 0; destUsers.length; i++) {
@@ -118,7 +121,7 @@ const createContentController = async (req, res, next) => {
 
 const updateContentController = async (req, res, next) => {
   try {
-    const { journey, language, data,title } = req.body;
+    const { journey, language, data,title,youtube_video_link } = req.body;
     // Validate the request body against the schema
     const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -137,6 +140,7 @@ const updateContentController = async (req, res, next) => {
     con.language = language;
     con.data = data;
     con.title=title;
+    con.youtube_video_link=youtube_video_link;
     await con.save();
 
     return res.send({ message: "Content sucessfully updated." });

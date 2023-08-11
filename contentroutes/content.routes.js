@@ -23,6 +23,7 @@ const router = express.Router();
 
 const contentUpdateValidationSchema = Joi.object({
   title: Joi.string().required(),
+  youtube_video_link:Joi.string().allow(""),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
@@ -30,6 +31,7 @@ const contentUpdateValidationSchema = Joi.object({
 
 const contentValidationSchema = Joi.object({
   title: Joi.string().required(),
+  youtube_video_link:Joi.string().allow(""),
   tab: jObjId(),
   journey: jObjId(),
   language: jObjId(),
@@ -71,6 +73,21 @@ router.get(
         select: "_id name",
       });
       return res.send(populatedJourney);
+    } catch (e) {
+      return next(new CustomError(500, "Something Went Wrong!"));
+    }
+  }
+);
+
+router.get(
+  "/get-countries",
+  [auth, isContentCreator],
+  async (req, res, next) => {
+    try {
+      const courintes = await Contentcreatorcountry.find({
+        creator: req.user.userId,
+      }).populate({path:"country",select:"_id name image"});
+      return res.send(courintes);
     } catch (e) {
       return next(new CustomError(500, "Something Went Wrong!"));
     }
@@ -129,7 +146,7 @@ router.get(
 // // create tabs content
 router.post("/:tabId", [auth, isContentCreator], async (req, res, next) => {
   try {
-    const { tab, journey, language, data, title } = req.body;
+    const { tab, journey, language, data, title,youtube_video_link } = req.body;
     // Validate the request body against the schema
     const { error } = contentValidationSchema.validate(req.body);
 
@@ -171,6 +188,7 @@ router.post("/:tabId", [auth, isContentCreator], async (req, res, next) => {
       creator: req.user.userId,
       title,
       creator: req.user.userId,
+      youtube_video_link
     });
     await cont.save();
 
@@ -186,7 +204,7 @@ router.post(
   [auth, isContentCreator],
   async (req, res, next) => {
     try {
-      const { journey, language, data, title } = req.body;
+      const { journey, language, data, title,youtube_video_link } = req.body;
       // Validate the request body against the schema
       const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -211,6 +229,7 @@ router.post(
       con.language = language;
       con.data = data;
       con.title = title;
+      con.youtube_video_link=youtube_video_link;
       await con.save();
 
       return res.send({ message: "Content sucessfully updated." });
@@ -220,19 +239,6 @@ router.post(
   }
 );
 
-router.post(
-  "/get-countries",
-  [auth, isContentCreator],
-  async (req, res, next) => {
-    try {
-      const courintes = await Contentcreatorcountry.find({
-        creator: req.user.userId,
-      });
-      return res.send(courintes);
-    } catch (e) {
-      return next(new CustomError(500, "Something Went Wrong!"));
-    }
-  }
-);
+
 
 export default router;

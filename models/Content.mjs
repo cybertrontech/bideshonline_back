@@ -23,6 +23,10 @@ const contentSchema = new mongoose.Schema(
         default:"",
         required:true
     },
+    youtube_video_link:{
+        type:String,
+        default:"",
+    },
     background_image:{
       type:String,
       default:"",

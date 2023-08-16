@@ -31,24 +31,24 @@ router.post("/", async (req, res, next) => {
         { userId: user._id, isAdmin: true },
         process.env.PRIVATE_KEY
       );
-      console.log("*********");
-      console.log("*********");
-      console.log(user);
-      console.log("*********");
-      console.log("*********");
+      // console.log("*********");
+      // console.log("*********");
+      // console.log(user);
+      // console.log("*********");
+      // console.log("*********");
 
       // Return the token to the client
-      return res.json({ token,userType:"admin",language:user.language,origin:user.origin  });
+      return res.json({ token,userType:"admin",language:user.language,origin:user.origin,image:user.image  });
     } else if (user.userType === "content") {
       const token = jwt.sign(
         { userId: user._id, isContentCreator: true },
         process.env.PRIVATE_KEY
       );
       // Return the token to the client
-      return res.json({ token,userType:"content" });
+      return res.json({ token,userType:"content",language:user.language,origin:user.origin,image:user.image });
     } else {
       const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY);
-      return res.json({ token,userType:"normal",language:user.language,origin:user.origin });
+      return res.json({ token,userType:"normal",language:user.language,origin:user.origin,image:user.image });
     }
   // } catch (e) {
   //   return next(new CustomError(500, "Something Went Wrong!"));

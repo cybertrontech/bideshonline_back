@@ -83,6 +83,7 @@ router.get(
   auth,
   async (req, res, next) => {
     try {
+       
       const langId = req.params.languageId;
       const { originId, destinationId } = req.params;
 
@@ -102,7 +103,7 @@ router.get(
       }
 
       // const languages = await Language.find({ country: originId }).select("-__v");
-      console.log(user.language);
+      // console.log(user.language);
 
       if (user.language) {
         const content = await Content.find({

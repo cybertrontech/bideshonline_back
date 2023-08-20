@@ -36,6 +36,7 @@ const getUserByIdController = async (req, res, next) => {
     if (user === null) {
       return next(new CustomError(404, "User with this id doesn't exist."));
     };
+ 
 
     const destUsers = await DestinationUser.find({user:req.params.userId})
       .populate({ path: "destination", select: "_id name" })

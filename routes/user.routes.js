@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/user_type", auth, getUserTypeController);
 
 // a  user by id 
-router.get("/:userId", [auth, isAdmin], getUserByIdController);
+router.get("/:userId", [auth], getUserByIdController);
 
 // Get all users
 router.get("/:userType", [auth, isAdmin], getAllUsersController);

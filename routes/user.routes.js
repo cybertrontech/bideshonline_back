@@ -2,6 +2,7 @@ import express from "express";
 import {
   createUserController,
   editUserController,
+  getUserByIdController,
   editFrontUserWithImageController,
   editFrontUserController,
   editUserStatusController,
@@ -16,6 +17,9 @@ const router = express.Router();
 
 // a  user type
 router.get("/user_type", auth, getUserTypeController);
+
+// a  user by id 
+router.get("/:userId", [auth, isAdmin], getUserByIdController);
 
 // Get all users
 router.get("/:userType", [auth, isAdmin], getAllUsersController);

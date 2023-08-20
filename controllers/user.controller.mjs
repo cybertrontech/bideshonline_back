@@ -25,7 +25,37 @@ const userValidationAdminSchema = Joi.object({
   deviceId: Joi.string().allow("").optional(),
 });
 
+const getUserByIdController = async (req, res, next) => {
+  try {
 
+    const user = await User.findById(req.params.userId)
+      .select("_id first_name last_name email phonenumber origin language")
+      .populate({ path: "origin", select: "_id name" })
+      .populate({ path: "language", select: "_id name" });
+
+    if (user === null) {
+      return next(new CustomError(404, "User with this id doesn't exist."));
+    };
+
+    const destUsers = await DestinationUser.find({user:req.params.userId})
+      .populate({ path: "destination", select: "_id name" })
+      .select("_id destination");
+
+    return res.send({
+      _id: user._id,
+      email: user.email,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      origin: user.origin,
+      language: user.language,
+      destination: destUsers,
+    });
+
+  } catch (e) {
+    console.log(e);
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
 
 const getAllUsersController = async (req, res, next) => {
   const userType = req.params.userType;
@@ -272,4 +302,5 @@ export {
   editUserController,
   editFrontUserController,
   editFrontUserWithImageController,
+  getUserByIdController,
 };

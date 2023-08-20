@@ -13,7 +13,14 @@ const router = express.Router();
 router.get("/", auth, async (req, res, next) => {
   try {
     const noti = await Notification.find({ user: req.user.userId })
-      .populate({ path: "content", select: "_id tab" })
+      .populate({
+        path: "content",
+        select: "_id tab creator",
+        populate: {
+          path: "creator",
+          select: "_id first_name last_name image",
+        },
+      })
       .select("-user -__v");
     return res.send(noti);
   } catch (e) {

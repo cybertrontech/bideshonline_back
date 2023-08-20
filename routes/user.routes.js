@@ -24,7 +24,7 @@ router.get("/:userType", [auth, isAdmin], getAllUsersController);
 router.put("/edituser", [auth], editFrontUserController);
 
 //update user with image
-router.put("/edituser-noimage", [auth,upload.single("image")], editFrontUserWithImageController);
+router.put("/edituser-image", [auth,upload.single("image")], editFrontUserWithImageController);
 
 
 // edit users by admin

@@ -243,9 +243,11 @@ const editUserStatusController = async (req, res, next) => {
 };
 
 const editFrontUserController = async (req, res, next) => {
-  try {
+  // try {
+
     const { first_name, last_name, email, origin, language } = req.body;
     const user = await User.findById(req.user.userId);
+
     if (user === null) {
       return next(new CustomError(404, "User doesn't exist."));
     }
@@ -263,9 +265,9 @@ const editFrontUserController = async (req, res, next) => {
       message: "Successfully updated your profile.",
     });
     // return res.send("edited");
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 };
 
 const editFrontUserWithImageController = async (req, res, next) => {

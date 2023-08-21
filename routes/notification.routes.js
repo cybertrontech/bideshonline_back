@@ -15,11 +15,12 @@ router.get("/", auth, async (req, res, next) => {
     const noti = await Notification.find({ user: req.user.userId })
       .populate({
         path: "content",
-        select: "_id tab creator",
+        select: "_id tab creator title",
         populate: {
-          path: "creator",
-          select: "_id first_name last_name image",
+          path: "creator tab",
+          select: "_id title first_name last_name image",
         },
+
       })
       .select("-user -__v");
     return res.send(noti);

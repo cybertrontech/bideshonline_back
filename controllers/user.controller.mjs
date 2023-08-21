@@ -205,7 +205,7 @@ const getUserTypeController = async (req, res, next) => {
 };
 
 const editUserController = async (req, res, next) => {
-  // try{
+  try{
   const { first_name, last_name, type, origin, email } = req.body;
   const user = await User.findById(req.params.userId);
   user.first_name = first_name;
@@ -215,13 +215,11 @@ const editUserController = async (req, res, next) => {
   user.email = email;
   await user.save();
   return res.status(200).json({ message: "Successfully Updated." });
-  // return res.send("edited");
+  }
+  catch(e){
 
-  // }
-  // catch(e){
-
-  //   return next(new CustomError(500, "Something Went Wrong!"));
-  // }
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
 };
 
 const editUserStatusController = async (req, res, next) => {

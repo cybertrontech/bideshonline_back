@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/user_type", auth, getUserTypeController);
 
 // a  user by id 
-router.get("/:userId", [auth], getUserByIdController);
+router.get("/one_user/:userId", [auth], getUserByIdController);
 
 // Get all users
 router.get("/:userType", [auth, isAdmin], getAllUsersController);
@@ -29,7 +29,6 @@ router.put("/edituser", [auth], editFrontUserController);
 
 //update user with image
 router.put("/edituser-image", [auth,upload.single("image")], editFrontUserWithImageController);
-
 
 // edit users by admin
 router.put("/:userId", [auth, isAdmin], editUserController);

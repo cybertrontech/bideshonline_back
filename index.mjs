@@ -30,11 +30,13 @@ import { isAdmin } from "./middleware/admin.mjs";
 dotenv.config();
 const app = express();
 connectDb();
+
 app.use(
   cors({
     origin: "*",
   })
 );
+
 app.use(express.json());
 
 app.get("/", auth, (req, res, next) => {

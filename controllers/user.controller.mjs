@@ -27,7 +27,6 @@ const userValidationAdminSchema = Joi.object({
 
 const getUserByIdController = async (req, res, next) => {
   try {
-
     const user = await User.findById(req.params.userId)
       .select("_id first_name last_name email phonenumber origin language")
       .populate({ path: "origin", select: "_id name" })
@@ -35,10 +34,9 @@ const getUserByIdController = async (req, res, next) => {
 
     if (user === null) {
       return next(new CustomError(404, "User with this id doesn't exist."));
-    };
- 
+    }
 
-    const destUsers = await DestinationUser.find({user:req.params.userId})
+    const destUsers = await DestinationUser.find({ user: req.params.userId })
       .populate({ path: "destination", select: "_id name" })
       .select("_id destination");
 
@@ -51,7 +49,6 @@ const getUserByIdController = async (req, res, next) => {
       language: user.language,
       destination: destUsers,
     });
-
   } catch (e) {
     console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -59,42 +56,45 @@ const getUserByIdController = async (req, res, next) => {
 };
 
 const getAllUsersController = async (req, res, next) => {
-  const userType = req.params.userType;
-  if (userType === "n") {
-    User.find({ userType: "normal" })
-      .select("-password -deviceId -__v")
-      .sort("-updatedAt")
-      .then((users) => {
-        return res.status(200).json(users);
-      })
-      .catch((error) => {
-        return next(new CustomError(500, error.message));
-        // return res.status(500).json({ error: error.message });
-      });
-  } else if (userType === "c") {
-    User.find({ userType: "content" })
-      .select("-password -deviceId -__v")
-      .sort("-updatedAt")
-      .then((users) => {
-        return res.status(200).json(users);
-      })
-      .catch((error) => {
-        return next(new CustomError(500, error.message));
-        // return res.status(500).json({ error: error.message });
-      });
-  } else if (userType === "a") {
-    User.find({ userType: "admin" })
-      .select("-password -deviceId -__v")
-      .sort("-updatedAt")
-      .then((users) => {
-        return res.status(200).json(users);
-      })
-      .catch((error) => {
-        return next(new CustomError(500, error.message));
-        // return res.status(500).json({ error: error.message });
-      });
-  } else {
-    return res.send([]);
+  try {
+    const userType = req.params.userType;
+
+    if (userType === "n") {
+      User.find({ userType: "normal" })
+        .select("-password -deviceId -__v")
+        .sort("-updatedAt")
+        .then((users) => {
+          return res.status(200).json(users);
+        })
+        .catch((error) => {
+          return next(new CustomError(500, error.message));
+          // return res.status(500).json({ error: error.message });
+        });
+    } else if (userType === "c") {
+      User.find({ userType: "content" })
+        .select("-password -deviceId -__v")
+        .sort("-updatedAt")
+        .then((users) => {
+          return res.status(200).json(users);
+        })
+        .catch((error) => {
+          return next(new CustomError(500, error.message));
+        });
+    } else if (userType === "a") {
+      User.find({ userType: "admin" })
+        .select("-password -deviceId -__v")
+        .sort("-updatedAt")
+        .then((users) => {
+          return res.status(200).json(users);
+        })
+        .catch((error) => {
+          return next(new CustomError(500, error.message));
+        });
+    } else {
+      return res.send([]);
+    }
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong"));
   }
 };
 
@@ -205,19 +205,17 @@ const getUserTypeController = async (req, res, next) => {
 };
 
 const editUserController = async (req, res, next) => {
-  try{
-  const { first_name, last_name, type, origin, email } = req.body;
-  const user = await User.findById(req.params.userId);
-  user.first_name = first_name;
-  user.last_name = last_name;
-  user.userType = type;
-  user.origin = origin;
-  user.email = email;
-  await user.save();
-  return res.status(200).json({ message: "Successfully Updated." });
-  }
-  catch(e){
-
+  try {
+    const { first_name, last_name, type, origin, email } = req.body;
+    const user = await User.findById(req.params.userId);
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.userType = type;
+    user.origin = origin;
+    user.email = email;
+    await user.save();
+    return res.status(200).json({ message: "Successfully Updated." });
+  } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -243,26 +241,26 @@ const editUserStatusController = async (req, res, next) => {
 const editFrontUserController = async (req, res, next) => {
   // try {
 
-    const { first_name, last_name, email, origin, language } = req.body;
-    const user = await User.findById(req.user.userId);
+  const { first_name, last_name, email, origin, language } = req.body;
+  const user = await User.findById(req.user.userId);
 
-    if (user === null) {
-      return next(new CustomError(404, "User doesn't exist."));
-    }
+  if (user === null) {
+    return next(new CustomError(404, "User doesn't exist."));
+  }
 
-    user.first_name = first_name;
-    user.last_name = last_name;
-    user.email = email;
-    user.origin = origin;
-    user.language = language;
-    await user.save();
+  user.first_name = first_name;
+  user.last_name = last_name;
+  user.email = email;
+  user.origin = origin;
+  user.language = language;
+  await user.save();
 
-    // return res.send(user);
+  // return res.send(user);
 
-    return res.status(200).json({
-      message: "Successfully updated your profile.",
-    });
-    // return res.send("edited");
+  return res.status(200).json({
+    message: "Successfully updated your profile.",
+  });
+  // return res.send("edited");
   // } catch (e) {
   //   return next(new CustomError(500, "Something Went Wrong!"));
   // }

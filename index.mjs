@@ -13,7 +13,7 @@ import imageRouter from "./adminroutes/image.routes.js";
 import countryRouter from "./routes/country.routes.js";
 import journeyRouter from "./adminroutes/journeycountry.routes.js";
 import dataRouter from "./adminroutes/data.routes.js";
-import {Info} from "./models/InfoModel.mjs";
+import { Info } from "./models/InfoModel.mjs";
 import tabsRouter from "./adminroutes/tabs.routes.js";
 import infoRouter from "./adminroutes/info.routes.js";
 import tabsFrontRouter from "./routes/tab.routes.js";
@@ -47,21 +47,39 @@ app.get("/", auth, (req, res, next) => {
   }
 });
 
-app.get("/info",[auth],async(req,res)=>{
-  try { 
-    const info=await Info.find({})
-    if(info.length===0)
-    {
+app.get("/info", [auth], async (req, res) => {
+  try {
+    const info = await Info.find({});
+    if (info.length === 0) {
       return res.status(500).send("Internal Server Error");
-    };
-
+    }
     return res.send(info[0]);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
-})
+});
 
-app.get("/download-csv-of-user",[auth,isAdmin], async (req, res) => {
+app.post("/info", async (req, res) => {
+  try {
+    let info = await Info.find({});
+    if (info.length === 0) {
+      return res.status(500).send("Something Went Wrong.");
+    }
+    const { name, full_address, contact_number, email, about } = req.body;
+    info = info[0];
+    info.name = name;
+    info.full_address = full_address;
+    info.contact_number = contact_number;
+    info.email = email;
+    info.about = about;
+    await info.save();
+    return res.send({"success":"Successfully updated."}); 
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+});
+
+app.get("/download-csv-of-user", [auth, isAdmin], async (req, res) => {
   // Your Mongoose query, adjust as needed
   try {
     const query = await User.find({});
@@ -69,7 +87,13 @@ app.get("/download-csv-of-user",[auth,isAdmin], async (req, res) => {
     const plainData = query.map((item) => item.toObject());
 
     // Define the fields you want to include in the CSV file
-    const fields = ["first_name", "last_name", "email", "userType","createdAt"]; // Replace with your field names
+    const fields = [
+      "first_name",
+      "last_name",
+      "email",
+      "userType",
+      "createdAt",
+    ]; // Replace with your field names
 
     try {
       // Convert the data to CSV format

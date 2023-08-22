@@ -285,6 +285,7 @@ const editFrontUserWithImageController = async (req, res, next) => {
 
     return res.status(200).json({
       message: "Successfully updated your profile.",
+      image:user.image
     });
     // return res.send("edited");
   } catch (e) {

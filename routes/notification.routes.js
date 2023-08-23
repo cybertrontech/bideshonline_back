@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
+import { Types } from "mongoose";
 import { getAllCountryController } from "../controllers/country.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { CustomError } from "../error/CustomError.mjs";
@@ -20,7 +21,6 @@ router.get("/", auth, async (req, res, next) => {
           path: "creator tab",
           select: "_id title first_name last_name image",
         },
-
       })
       .select("-user -__v");
     return res.send(noti);
@@ -38,6 +38,31 @@ router.post("/", auth, async (req, res, next) => {
     });
     await noti.save();
     return res.send({ message: "Sucessfully created notification." });
+  } catch (e) {
+    return next(new CustomError(500, "Something went wrong."));
+  }
+});
+
+//update notification
+router.put("/:notiId", auth, async (req, res, next) => {
+  try {
+    const notificataion = await Notification.findById(req.params.notiId);
+
+    if (notificataion === null) {
+      return next(
+        new CustomError(404, "Notification with this id doesn't exist..")
+      );
+    }
+    const notificatoniUser = notificataion.user;
+    const userId = new Types.ObjectId(req.user.userId);
+
+    if (notificatoniUser.toString() === userId.toString()) {
+      notificataion.seen = true;
+      await notificataion.save();
+      return res.send({ message: "Viewed." });
+    }
+
+    return next(new CustomError(404, "You cannot't view this notification."));
   } catch (e) {
     return next(new CustomError(500, "Something went wrong."));
   }

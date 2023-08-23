@@ -273,7 +273,8 @@ const editFrontUserWithImageController = async (req, res, next) => {
     const user = await User.findById(req.user.userId);
     if (user === null) {
       return next(new CustomError(404, "User doesn't exist."));
-    }
+    };
+
     const path = req.file?.path;
 
     user.first_name = first_name;

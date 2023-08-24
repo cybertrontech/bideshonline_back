@@ -24,12 +24,26 @@ router.get("/", auth, async (req, res, next) => {
     const tabs = await Tabs.aggregate([
       {
         $lookup: {
+          from: "contents",
+          localField: "_id",
+          foreignField: "tab",
+          as: "con",
+        },
+      },
+      {
+        $addFields: {
+          contentCount: { $size: "$con" }, // Add a field with the count
+        },
+      },
+      {
+        $lookup: {
           from: "languagewisetabs",
           localField: "_id",
           foreignField: "tab",
           as: "alternate",
         },
       },
+
       {
         $unwind: { path: "$alternate", preserveNullAndEmptyArrays: true },
       },
@@ -63,6 +77,8 @@ router.get("/", auth, async (req, res, next) => {
       {
         $project: {
           hasAlternate: 0, // Remove the temporary field used for matching
+          // contentCount:1
+          con: 0,
         },
       },
       // {
@@ -83,7 +99,6 @@ router.get(
   auth,
   async (req, res, next) => {
     try {
-       
       const langId = req.params.languageId;
       const { originId, destinationId } = req.params;
 
@@ -118,10 +133,9 @@ router.get(
           })
           .select("-__v -active");
 
-        //let the first content lang type be used in case the user.language is not present 
+        //let the first content lang type be used in case the user.language is not present
         if (content.length === 0) {
           // return next(new CustomError(404, "This content doesn't exist."));
-
         } else {
           return res.send(content[0]);
         }

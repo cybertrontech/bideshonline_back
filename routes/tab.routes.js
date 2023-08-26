@@ -6,7 +6,6 @@ import { Tabs } from "../models/Tabs.mjs";
 import { Content } from "../models/Content.mjs";
 import { Journery } from "../models/Journey.mjs";
 import { Language } from "../models/Language.mjs";
-import { isAdmin } from "../middleware/admin.mjs";
 import mongoose from "mongoose";
 import { CustomError } from "../error/CustomError.mjs";
 import { User } from "../models/User.mjs";
@@ -93,13 +92,91 @@ router.get("/", auth, async (req, res, next) => {
   }
 });
 
+// get contents wise  
+router.get("/contents/:tabId", auth, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.user.userId });
+    const tabs = await Content.aggregate([
+      {
+        $match: {
+          tab: new ObjectId(req.params.tabId),
+        },
+      },
+      {
+        $lookup: {
+          from: "journeries",
+          localField: "journey",
+          foreignField: "_id",
+          as: "jor",
+        },
+      },
+      {
+        $unwind: "$jor",
+      },
+      {
+        $addFields: {
+          dest: "$jor.destination",
+        },
+      },
+      {
+        $lookup: {
+          from: "destinationusers",
+          let: { desti: "$dest" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user", new ObjectId(req.user.userId)] },
+                    { $eq: ["$destination", "$$desti"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "destinations",
+        },
+      },
+      {
+        $addFields: {
+          destLen: { $size: "$destinations" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          journey: 1,
+          tab: 1,
+          dest: 1,
+          d: 1,
+          destLen: 1,
+        },
+      },
+    ]);
+    const t = await Journery.populate(tabs, {
+      path: "journey",
+      select: "_id origin",
+    });
+
+    const finalQuery = t.filter(
+      (obj) =>
+        obj.journey.origin.toString() === user.origin.toString() &&
+        obj.destLen > 0
+    );
+    return res.send(finalQuery);
+  } catch (e) {
+    return next(new Error());
+  }
+});
+
 // get content by tab id
 router.get(
   "/:tabId/:originId/:destinationId/",
   auth,
   async (req, res, next) => {
     try {
-      const langId = req.params.languageId;
+      // const langId = req.params.languageId;
       const { originId, destinationId } = req.params;
 
       const journey = await Journery.findOne({
@@ -116,9 +193,6 @@ router.get(
       if (journey === null) {
         return next(new CustomError(404, "This content doesn't exist."));
       }
-
-      // const languages = await Language.find({ country: originId }).select("-__v");
-      // console.log(user.language);
 
       if (user.language) {
         const content = await Content.find({

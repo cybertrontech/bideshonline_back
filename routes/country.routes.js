@@ -7,6 +7,7 @@ import {
   getAllCountryController,
   getLanguageByCountryController,
   getDestinationCountryController,getDestinationCountryControllerByUser
+  ,addtDestinationCountryController
 } from "../controllers/country.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -21,8 +22,11 @@ router.get("/language/:countryId", getLanguageByCountryController);
 // get user country destination 
 router.get("/destination",[auth], getDestinationCountryController);
 
+// add user  destination 
+router.post("/add-destination",[auth], addtDestinationCountryController);
+
 // get user country destination  and user
-router.get("/user-destination/:userId",[auth], getDestinationCountryControllerByUser);
+router.get("/user-destination",[auth], getDestinationCountryControllerByUser);
 
 
 

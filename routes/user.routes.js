@@ -9,6 +9,7 @@ import {
   createUserControllerByAdmin,
   getAllUsersController,
   getUserTypeController,
+  editFrontUserAdvanceController
 } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -29,6 +30,10 @@ router.put("/edituser", [auth], editFrontUserController);
 
 //update user with image
 router.put("/edituser-image", [auth,upload.single("image")], editFrontUserWithImageController);
+
+
+//update user advance 
+router.put("/advance-edituser", [auth], editFrontUserAdvanceController);
 
 // edit users by admin
 router.put("/:userId", [auth, isAdmin], editUserController);

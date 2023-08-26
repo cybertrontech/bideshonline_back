@@ -40,6 +40,8 @@ const getUserByIdController = async (req, res, next) => {
       .populate({ path: "destination", select: "_id name" })
       .select("_id destination");
 
+  
+
     return res.send({
       _id: user._id,
       email: user.email,
@@ -50,7 +52,7 @@ const getUserByIdController = async (req, res, next) => {
       destination: destUsers,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -268,12 +270,11 @@ const editFrontUserController = async (req, res, next) => {
 
 const editFrontUserWithImageController = async (req, res, next) => {
   try {
-  
     const { first_name, last_name, email, origin, language } = req.body;
     const user = await User.findById(req.user.userId);
     if (user === null) {
       return next(new CustomError(404, "User doesn't exist."));
-    };
+    }
 
     const path = req.file?.path;
 
@@ -287,9 +288,34 @@ const editFrontUserWithImageController = async (req, res, next) => {
 
     return res.status(200).json({
       message: "Successfully updated your profile.",
-      image:user.image
+      image: user.image,
     });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
 
+const editFrontUserAdvanceController = async (req, res, next) => {
+  try {
+    const { destination, origin, language } = req.body;
+    let finalDest = [];
+    const user = await User.findById(req.user.userId);
+    if (user === null) {
+      return next(new CustomError(404, "User with this id doesn't exist."));
+    }
+  
+
+    await DestinationUser.deleteMany({ user: req.user.userId });
+    for (let i = 0; i < destination.length; i++) {
+      finalDest.push({ user: req.user.userId, destination: destination[i] });
+    }
+
+    await DestinationUser.insertMany(finalDest);
+    user.origin = origin;
+    user.language = language;
+    await user.save();
+
+    return res.send({"message":"Successfully updated."});
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -305,4 +331,5 @@ export {
   editFrontUserController,
   editFrontUserWithImageController,
   getUserByIdController,
+  editFrontUserAdvanceController,
 };

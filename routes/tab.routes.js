@@ -151,6 +151,7 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
           dest: 1,
           d: 1,
           destLen: 1,
+          background_image:1
         },
       },
     ]);

@@ -16,6 +16,7 @@ const contentValidationSchema = Joi.object({
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
+  image:Joi.allow()
 });
 
 const contentUpdateValidationSchema = Joi.object({
@@ -24,6 +25,7 @@ const contentUpdateValidationSchema = Joi.object({
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
+  image:Joi.allow()
 });
 
 const getContentController = async (req, res, next) => {
@@ -62,7 +64,7 @@ const getContentByIdController = async (req, res, next) => {
 };
 
 const createContentController = async (req, res, next) => {
-  // try {
+  try {
   const { tab, journey, language, data, title,youtube_video_link } = req.body;
   const notifications = [];
   // Validate the request body against the schema
@@ -72,10 +74,14 @@ const createContentController = async (req, res, next) => {
   if (error) {
     return next(new CustomError(400, error.details[0].message));
   }
-  console.log(journey);
+  const path = req?.file.path;
+  // console.log("************************")
+  // console.log(path);
+  // console.log("************************")
+  // console.log(journey);
   const jor = await Journery.findById(journey);
 
-  console.log(jor);
+  // console.log(jor);
 
   if (jor === null) {
     return next(new CustomError(404, "This journey doesn't exist."));
@@ -91,9 +97,9 @@ const createContentController = async (req, res, next) => {
     );
   }
 
-  const destUsers = await DestinationUser.find({
-    destination: jor.destination,
-  });
+  // const destUsers = await DestinationUser.find({
+  //   destination: jor.destination,
+  // });
 
   const cont = new Content({
     tab,
@@ -102,8 +108,10 @@ const createContentController = async (req, res, next) => {
     data,
     creator: req.user.userId,
     title,
-    youtube_video_link
+    youtube_video_link,
+    background_image:path
   });
+  console.log(cont);
 
   // for (let i = 0; destUsers.length; i++) {
   //   notifications.push({ user: destUsers[i].user, content: cont._id });
@@ -114,9 +122,9 @@ const createContentController = async (req, res, next) => {
   await cont.save();
 
   return res.send({ message: "Content sucessfully created." });
-  // } catch (e) {
-  //   return next(new CustomError(500, "Something Went Wrong!"));
-  // }
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
 };
 
 const updateContentController = async (req, res, next) => {
@@ -130,10 +138,13 @@ const updateContentController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
+    const path = req?.file.path;
+
     const con = await Content.findOne({ _id: req.params.contentId });
     if (con === null) {
       return next(new CustomError(404, "Content doesn't exist."));
     }
+
 
 
     con.journey = journey;
@@ -141,6 +152,10 @@ const updateContentController = async (req, res, next) => {
     con.data = data;
     con.title=title;
     con.youtube_video_link=youtube_video_link;
+    if(path!==null && path!==undefined)
+    {
+      con.background_image=path;
+    }
     await con.save();
 
     return res.send({ message: "Content sucessfully updated." });

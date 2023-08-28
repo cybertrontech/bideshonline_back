@@ -24,8 +24,9 @@ import { CustomError } from "./error/CustomError.mjs";
 import { errorHandler } from "./error/handler.mjs";
 import cors from "cors";
 import fs from "fs";
-import { User } from "./models/User.mjs";
+import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
+import { Country } from "./models/Country.mjs";
 
 dotenv.config();
 const app = express();
@@ -48,6 +49,48 @@ app.get("/", auth, (req, res, next) => {
     next(err);
   }
 });
+
+app.get("/origins-stats",[auth,isAdmin], async(req, res, next) => {
+  try {
+    // const origin=await 
+    const user=await User.aggregate([
+      {
+        $group: {
+          _id: '$origin', // Group by the customerId field
+          totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
+        },
+      },
+    ]);
+    const countries=await Country.populate(user,{path:"_id",select:"_id name"})
+    return res.send(countries);
+
+  } catch (err) {
+    // Pass the error to the error handler
+    next(err);
+  }
+});
+
+app.get("/destinations-stats",[auth,isAdmin], async(req, res, next) => {
+  try {
+    // const origin=await 
+    const user=await DestinationUser.aggregate([
+      {
+        $group: {
+          _id: '$destination', // Group by the customerId field
+          totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
+        },
+      },
+    ]);
+    const countries=await Country.populate(user,{path:"_id",select:"_id name"})
+    return res.send(countries);
+
+  } catch (err) {
+    // Pass the error to the error handler
+    next(err);
+  }
+});
+
+
 
 app.get("/info", [auth], async (req, res) => {
   try {

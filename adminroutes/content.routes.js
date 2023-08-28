@@ -4,6 +4,7 @@ dotenv.config()
 import {auth} from "../middleware/auth.mjs"
 import { createContentController, getContentByIdController,deleteContentController,deleteContentCreatorCountriesByIdController,createContentCreatorCountriesByIdController,getContentCreatorCountriesByIdController, getContentController,updateContentController } from "../admincontrollers/content.controller.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
+import { upload } from "../adminutils/image.upload.mjs";
 const router=express.Router();
 
 //get all tabs
@@ -24,14 +25,14 @@ router.delete('/content-creator/:contentCountryId',[auth,isAdmin],deleteContentC
 
 
 // create content tabwise 
-router.post('/:tabId',[auth,isAdmin],createContentController);
+router.post('/:tabId',[auth,isAdmin,upload.single("image")],createContentController);
 
 
 // delete tabs  id
 router.delete('/:tabId',[auth,isAdmin],deleteContentController);
 
 //update tabs
-router.post('/content/:contentId',[auth,isAdmin],updateContentController);
+router.post('/content/:contentId',[auth,isAdmin,upload.single("image")],updateContentController);
 
 
 

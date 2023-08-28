@@ -30,7 +30,7 @@ const getAllJourneyController = async (req, res, next) => {
 
 const createContryController = async (req, res, next) => {
   try {
-    console.log("creatingggggg");
+    // console.log("creatingggggg");
     const { name } = req.body;
     // Validate the request body against the schema
     const { error, value } = countryValidationSchema.validate(req.body);

@@ -3,7 +3,19 @@ import { DestinationUser, User } from "../models/User.mjs";
 import bcrypt from "bcrypt";
 import { CustomError } from "../error/CustomError.mjs";
 import jId from "joi-objectid";
+import { generateRandomString } from "../utils/randomCodeGenerator.mjs";
+import { sendEmail } from "../utils/mailer.mjs";
 const jObjId = jId(Joi);
+
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+const newPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+  code: Joi.string().required().min(8).max(8),
+  password: Joi.string().required(),
+});
 
 const userValidationSchema = Joi.object({
   first_name: Joi.string().required(),
@@ -39,8 +51,6 @@ const getUserByIdController = async (req, res, next) => {
     const destUsers = await DestinationUser.find({ user: req.params.userId })
       .populate({ path: "destination", select: "_id name" })
       .select("_id destination");
-
-  
 
     return res.send({
       _id: user._id,
@@ -303,7 +313,6 @@ const editFrontUserAdvanceController = async (req, res, next) => {
     if (user === null) {
       return next(new CustomError(404, "User with this id doesn't exist."));
     }
-  
 
     await DestinationUser.deleteMany({ user: req.user.userId });
     for (let i = 0; i < destination.length; i++) {
@@ -315,7 +324,75 @@ const editFrontUserAdvanceController = async (req, res, next) => {
     user.language = language;
     await user.save();
 
-    return res.send({"message":"Successfully updated."});
+    return res.send({ message: "Successfully updated." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { error } = forgotPasswordSchema.validate(req.body);
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user == null) {
+      return next(new CustomError(404, "User with this email doesn't exist."));
+    }
+    const code = generateRandomString(8);
+    user.forgotPasswordCode = code;
+    user.forgotCodeExpired = false;
+    try {
+      const subject = "Forgot Password";
+      const text = `Dear ${user.first_name} ${user.last_name}, Please donot share this with anyone. Your password recovery code is : ${code}`;
+      await sendEmail(email, code, subject, text);
+      await user.save();
+      return res.send({
+        message: "Code successfully sent to your mail.Please check your email.",
+      });
+    } catch (e) {
+      return next(new CustomError(500, "Something Went Wrong!"));
+    }
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const newPassword = async (req, res, next) => {
+  try {
+    const { error } = newPasswordSchema.validate(req.body);
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+    const { email, code, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (user == null) {
+      return next(new CustomError(404, "User with this email doesn't exist."));
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newpass = await bcrypt.hash(password, salt);
+
+    if (user.forgotPasswordCode === code && user.forgotCodeExpired === false) {
+      user.forgotCodeExpired = true;
+      user.password = newpass;
+      await user.save();
+      return res.send({
+        message: "Your password has been successfully updated.",
+      });
+    }
+    return next(
+      new CustomError(
+        404,
+        "Sorry your reset-code isn't correct. Please try again!"
+      )
+    );
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -332,4 +409,6 @@ export {
   editFrontUserWithImageController,
   getUserByIdController,
   editFrontUserAdvanceController,
+  forgotPassword,
+  newPassword,
 };

@@ -9,10 +9,10 @@ const router = express.Router();
 
 // Login a new user
 router.post("/", async (req, res, next) => {
-  // try {
+  try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email,verified:true });
+    const user = await User.findOne({ email, verified: true });
 
     if (!user) {
       return next(new CustomError(401, "Invalid email or password"));
@@ -26,33 +26,55 @@ router.post("/", async (req, res, next) => {
     }
     // Create and sign a JWT token
     if (user.userType === "admin") {
-
       const token = jwt.sign(
         { userId: user._id, isAdmin: true },
-        process.env.PRIVATE_KEY
+        process.env.PRIVATE_KEY,
+        {
+          expiresIn: 60 * 60 * 24 * 2,
+        }
       );
-      // console.log("*********");
-      // console.log("*********");
-      // console.log(user);
-      // console.log("*********");
-      // console.log("*********");
-
       // Return the token to the client
-      return res.json({ token,userType:"admin",userId:user._id,language:user.language,origin:user.origin,image:user.image  });
+      return res.json({
+        token,
+        userType: "admin",
+        userId: user._id,
+        language: user.language,
+        origin: user.origin,
+        image: user.image,
+      });
     } else if (user.userType === "content") {
       const token = jwt.sign(
         { userId: user._id, isContentCreator: true },
-        process.env.PRIVATE_KEY
+        process.env.PRIVATE_KEY,
+        {
+          expiresIn: 60 * 60 * 24 * 2,
+        }
       );
       // Return the token to the client
-      return res.json({ token,userType:"content",userId:user._id,language:user.language,origin:user.origin,image:user.image });
+      return res.json({
+        token,
+        userType: "content",
+        userId: user._id,
+        language: user.language,
+        origin: user.origin,
+        image: user.image,
+      });
     } else {
-      const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY);
-      return res.json({ token,userType:"normal",userId:user._id,language:user.language,origin:user.origin,image:user.image });
+      const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY, {
+        expiresIn: 60 * 60 * 24 * 30,
+      });
+      return res.json({
+        token,
+        userType: "normal",
+        userId: user._id,
+        language: user.language,
+        origin: user.origin,
+        image: user.image,
+      });
     }
-  // } catch (e) {
-  //   return next(new CustomError(500, "Something Went Wrong!"));
-  // }
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
 });
 
 export default router;

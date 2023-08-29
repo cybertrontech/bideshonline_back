@@ -27,6 +27,7 @@ import fs from "fs";
 import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
 import { Country } from "./models/Country.mjs";
+import { Language } from "./models/Language.mjs";
 
 dotenv.config();
 const app = express();
@@ -50,47 +51,104 @@ app.get("/", auth, (req, res, next) => {
   }
 });
 
-app.get("/origins-stats",[auth,isAdmin], async(req, res, next) => {
+app.get("/origins-stats", [auth, isAdmin], async (req, res, next) => {
   try {
-    // const origin=await 
-    const user=await User.aggregate([
+    // const origin=await
+    const user = await User.aggregate([
       {
         $group: {
-          _id: '$origin', // Group by the customerId field
+          _id: "$origin", // Group by the customerId field
           totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
         },
       },
+      {
+        $sort: { totalUsers: -1 },
+      },
     ]);
-    const countries=await Country.populate(user,{path:"_id",select:"_id name"})
+    const countries = await Country.populate(user, {
+      path: "_id",
+      select: "_id name",
+    });
     return res.send(countries);
-
   } catch (err) {
     // Pass the error to the error handler
     next(err);
   }
 });
 
-app.get("/destinations-stats",[auth,isAdmin], async(req, res, next) => {
+app.get("/language-stats", [auth, isAdmin], async (req, res, next) => {
   try {
-    // const origin=await 
-    const user=await DestinationUser.aggregate([
+    // const origin=await
+    const user = await User.aggregate([
       {
         $group: {
-          _id: '$destination', // Group by the customerId field
+          _id: "$language", // Group by the customerId field
           totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
         },
       },
+      {
+        $sort: { totalUsers: -1 },
+      },
     ]);
-    const countries=await Country.populate(user,{path:"_id",select:"_id name"})
-    return res.send(countries);
-
+    const lang = await Language.populate(user, {
+      path: "_id",
+      select: "_id name",
+    });
+    return res.send(lang);
   } catch (err) {
     // Pass the error to the error handler
     next(err);
   }
 });
 
+app.get("/user-stats", [auth, isAdmin], async (req, res, next) => {
+  try {
+    const user = await User.aggregate([
+      {
+        $group: {
+          _id: "$language", // Group by the customerId field
+          totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
+        },
+      },
+      {
+        $sort: { totalUsers: -1 },
+      },
+    ]);
+    const lang = await Language.populate(user, {
+      path: "_id",
+      select: "_id name",
+    });
+    return res.send(lang);
+  } catch (err) {
+    // Pass the error to the error handler
+    next(err);
+  }
+});
 
+app.get("/destinations-stats", [auth, isAdmin], async (req, res, next) => {
+  try {
+    // const origin=await
+    const user = await DestinationUser.aggregate([
+      {
+        $group: {
+          _id: "$destination", // Group by the customerId field
+          totalUsers: { $sum: 1 }, // Calculate the total order amount for each group
+        },
+      },
+      {
+        $sort: { totalUsers: -1 },
+      },
+    ]);
+    const countries = await Country.populate(user, {
+      path: "_id",
+      select: "_id name",
+    });
+    return res.send(countries);
+  } catch (err) {
+    // Pass the error to the error handler
+    next(err);
+  }
+});
 
 app.get("/info", [auth], async (req, res) => {
   try {
@@ -118,7 +176,7 @@ app.post("/info", async (req, res) => {
     info.email = email;
     info.about = about;
     await info.save();
-    return res.send({"success":"Successfully updated."}); 
+    return res.send({ success: "Successfully updated." });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }

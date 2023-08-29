@@ -7,9 +7,11 @@ import {
   editFrontUserController,
   editUserStatusController,
   createUserControllerByAdmin,
+  forgotPassword,
   getAllUsersController,
   getUserTypeController,
-  editFrontUserAdvanceController
+  editFrontUserAdvanceController,
+  newPassword
 } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -46,6 +48,10 @@ router.post("/", createUserController);
 
 // Create a new user
 router.post("/by-admin", createUserControllerByAdmin);
+
+router.post("/forgot-password",forgotPassword);
+
+router.post("/new-password",newPassword)
 
 // // Get a specific user by ID
 // router.get('/users/:id', (req, res) => {

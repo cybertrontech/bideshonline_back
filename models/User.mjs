@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 // Define the user schema
@@ -36,6 +37,13 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+    },
+    forgotPasswordCode: {
+      type: String,
+    },
+    forgotCodeExpired:{
+     type:Boolean, 
+     default:false
     },
     userType: {
       type: String,

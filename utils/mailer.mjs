@@ -31,6 +31,8 @@ oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN }); // Yo
       subject,
       text,
     };
+
+    console.log("SENDINGGGGG maillllllll")
   
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -38,7 +40,10 @@ oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN }); // Yo
       } else {
         console.log('Email sent:', info.response);
       }
+
     });
+
+    console.log("SENDINGGGGG maillllllll DONE")
   }
  
   export {sendEmail}

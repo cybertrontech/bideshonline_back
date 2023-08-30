@@ -20,6 +20,76 @@ router.get("/", auth, async (req, res, next) => {
     if (user === null) {
       return next(new CustomError(404, "User with this id doesn't exist."));
     }
+
+    const cons = await Content.aggregate([
+   
+      {
+        $lookup: {
+          from: "journeries",
+          localField: "journey",
+          foreignField: "_id",
+          as: "jor",
+        },
+      },
+      {
+        $unwind: "$jor",
+      },
+      {
+        $addFields: {
+          dest: "$jor.destination",
+        },
+      },
+      {
+        $lookup: {
+          from: "destinationusers",
+          let: { desti: "$dest" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$user", new ObjectId(req.user.userId)] },
+                    { $eq: ["$destination", "$$desti"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "destinations",
+        },
+      },
+      {
+        $addFields: {
+          destLen: { $size: "$destinations" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          journey: 1,
+          tab: 1,
+          dest: 1,
+          d: 1,
+          destLen: 1,
+          background_image:1
+        },
+      },
+    ]);
+
+    const t = await Journery.populate(cons, {
+      path: "journey",
+      select: "_id origin",
+    });
+
+    const finalQuery = t.filter(
+      (obj) =>
+        obj.journey.origin.toString() === user.origin.toString() &&
+        obj.destLen > 0
+    );
+
+
+
     const tabs = await Tabs.aggregate([
       {
         $lookup: {
@@ -86,7 +156,7 @@ router.get("/", auth, async (req, res, next) => {
       //   },
       // },
     ]);
-    return res.send(tabs);
+    return res.send({recentContent:finalQuery,tabs});
   } catch (e) {
     return next(new Error());
   }
@@ -155,6 +225,7 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
         },
       },
     ]);
+
     const t = await Journery.populate(tabs, {
       path: "journey",
       select: "_id origin",
@@ -165,6 +236,7 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
         obj.journey.origin.toString() === user.origin.toString() &&
         obj.destLen > 0
     );
+
     return res.send(finalQuery);
   } catch (e) {
     return next(new Error());

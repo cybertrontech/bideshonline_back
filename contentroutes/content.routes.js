@@ -4,12 +4,12 @@ import { ObjectId } from "mongodb";
 dotenv.config();
 import { auth } from "../middleware/auth.mjs";
 import { isContentCreator } from "../middleware/content.mjs";
-import {
-  createContentController,
-  getContentByIdController,
-  getContentController,
-  updateContentController,
-} from "../admincontrollers/content.controller.mjs";
+// import {
+//   createContentController,
+//   getContentByIdController,
+//   getContentController,
+//   updateContentController,
+// } from "../admincontrollers/content.controller.mjs";
 // import {Contentcreatorcountry} from "../models/ContentCreatorCountry.mjs"
 import { isAdmin } from "../middleware/admin.mjs";
 import { Content } from "../models/Content.mjs";

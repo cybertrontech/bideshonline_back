@@ -18,12 +18,13 @@ import jId from "joi-objectid";
 import { CustomError } from "../error/CustomError.mjs";
 import { Journery } from "../models/Journey.mjs";
 import { Contentcreatorcountry } from "../models/ContentCreatorCountry.mjs";
+import { upload } from "../adminutils/image.upload.mjs";
 const jObjId = jId(Joi);
 const router = express.Router();
 
 const contentUpdateValidationSchema = Joi.object({
   title: Joi.string().required(),
-  youtube_video_link:Joi.string().allow(""),
+  youtube_video_link: Joi.string().allow(""),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
@@ -31,7 +32,7 @@ const contentUpdateValidationSchema = Joi.object({
 
 const contentValidationSchema = Joi.object({
   title: Joi.string().required(),
-  youtube_video_link:Joi.string().allow(""),
+  youtube_video_link: Joi.string().allow(""),
   tab: jObjId(),
   journey: jObjId(),
   language: jObjId(),
@@ -86,7 +87,7 @@ router.get(
     try {
       const courintes = await Contentcreatorcountry.find({
         creator: req.user.userId,
-      }).populate({path:"country",select:"_id name image"});
+      }).populate({ path: "country", select: "_id name image" });
       return res.send(courintes);
     } catch (e) {
       return next(new CustomError(500, "Something Went Wrong!"));
@@ -144,67 +145,79 @@ router.get(
 );
 
 // // create tabs content
-router.post("/:tabId", [auth, isContentCreator], async (req, res, next) => {
-  try {
-    const { tab, journey, language, data, title,youtube_video_link } = req.body;
-    // Validate the request body against the schema
-    const { error } = contentValidationSchema.validate(req.body);
+router.post(
+  "/:tabId",
+  [auth, isContentCreator, upload.single("image")],
+  async (req, res, next) => {
+    try {
+      const { tab, journey, language, data, title, youtube_video_link } =
+        req.body;
+      // Validate the request body against the schema
+      const { error } = contentValidationSchema.validate(req.body);
 
-    // Check for validation errors
-    if (error) {
-      return next(new CustomError(400, error.details[0].message));
-    }
+      // Check for validation errors
+      if (error) {
+        return next(new CustomError(400, error.details[0].message));
+      }
 
-    const actJour = await Journery.findById(journey);
-    if (actJour === null) {
-      return next(new CustomError(404, "Journey with this id doesn't exists."));
-    }
+      const actJour = await Journery.findById(journey);
+      if (actJour === null) {
+        return next(
+          new CustomError(404, "Journey with this id doesn't exists.")
+        );
+      }
 
-    const con = await Content.find({
-      journey: journey,
-      language: language,
-      tab: tab,
-    });
-    if (con.length > 0) {
-      return next(
-        new CustomError(
-          404,
-          "Content with this journey and language already exists."
-        )
-      );
-    }
-    const contentCreatorCountryIsActual = await Contentcreatorcountry.find({
-      creator: req.user.userId,
-      country: actJour.origin,
-    });
-    if (contentCreatorCountryIsActual.length === 0) {
-      return next(new CustomError(404, "Sorry you cannot post this content."));
-    }
-    const cont = new Content({
-      tab,
-      journey,
-      language,
-      data,
-      creator: req.user.userId,
-      title,
-      creator: req.user.userId,
-      youtube_video_link
-    });
-    await cont.save();
+      const con = await Content.find({
+        journey: journey,
+        language: language,
+        tab: tab,
+      });
+      if (con.length > 0) {
+        return next(
+          new CustomError(
+            404,
+            "Content with this journey and language already exists."
+          )
+        );
+      }
+      const contentCreatorCountryIsActual = await Contentcreatorcountry.find({
+        creator: req.user.userId,
+        country: actJour.origin,
+      });
+      if (contentCreatorCountryIsActual.length === 0) {
+        return next(
+          new CustomError(404, "Sorry you cannot post this content.")
+        );
+      }
+      const path = req?.file.path;
 
-    return res.send({ message: "Content sucessfully created." });
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
+      const cont = new Content({
+        tab,
+        journey,
+        language,
+        data,
+        creator: req.user.userId,
+        title,
+        creator: req.user.userId,
+        youtube_video_link,
+        background_image: path,
+      });
+      await cont.save();
+
+      return res.send({ message: "Content sucessfully created." });
+    } catch (e) {
+      return next(new CustomError(500, "Something Went Wrong!"));
+    }
   }
-});
+);
 
 // //update tabs
 router.post(
   "/content/:contentId",
-  [auth, isContentCreator],
+  [auth, isContentCreator, upload.single("image")],
   async (req, res, next) => {
     try {
-      const { journey, language, data, title,youtube_video_link } = req.body;
+      const { journey, language, data, title, youtube_video_link } = req.body;
       // Validate the request body against the schema
       const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -224,21 +237,25 @@ router.post(
       if (a !== b) {
         return next(new CustomError(403, "You can't perform this action bro."));
       }
+      const path = req?.file?.path || null;
 
       con.journey = journey;
       con.language = language;
       con.data = data;
       con.title = title;
-      con.youtube_video_link=youtube_video_link;
+      con.youtube_video_link = youtube_video_link;
+      if (path !== null) {
+        con.background_image = path;
+      }
+
       await con.save();
 
       return res.send({ message: "Content sucessfully updated." });
     } catch (e) {
+     
       return next(new CustomError(500, "Something Went Wrong!"));
     }
   }
 );
-
-
 
 export default router;

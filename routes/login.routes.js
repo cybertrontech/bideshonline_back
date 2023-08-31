@@ -41,6 +41,8 @@ router.post("/", async (req, res, next) => {
         language: user.language,
         origin: user.origin,
         image: user.image,
+        email:user.email,
+        name:`${user.first_name} ${user.last_name}`
       });
     } else if (user.userType === "content") {
       const token = jwt.sign(

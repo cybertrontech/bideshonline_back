@@ -158,8 +158,8 @@ router.post(
       // Validate the request body against the schema
       const { error } = contentValidationSchema.validate(req.body);
 
-      const notifications=[];
-      const fmwTokens=[]
+      const notifications = [];
+      const fmwTokens = [];
 
       // Check for validation errors
       if (error) {
@@ -213,15 +213,15 @@ router.post(
       const destUsers = await DestinationUser.find({
         destination: actJour.destination._id,
       }).populate({ path: "user", select: "_id deviceId email" });
-  
+
       for (let i = 0; i < destUsers.length; i++) {
         notifications.push({ user: destUsers[i].user._id, content: cont._id });
         fmwTokens.push(destUsers[i]?.user?.deviceId);
       }
-  
+
       try {
         await Notification.insertMany(notifications);
-  
+
         await sendNotificationAtBulk(
           fmwTokens,
           `Content added for ${actJour.destination.name}.`,
@@ -233,9 +233,6 @@ router.post(
         console.log(e);
         return next(new CustomError(500, "Error in notification sending."));
       }
-
-
-      return res.send({ message: "Content sucessfully created." });
     } catch (e) {
       return next(new CustomError(500, "Something Went Wrong!"));
     }
@@ -283,7 +280,6 @@ router.post(
 
       return res.send({ message: "Content sucessfully updated." });
     } catch (e) {
-     
       return next(new CustomError(500, "Something Went Wrong!"));
     }
   }

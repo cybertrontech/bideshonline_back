@@ -127,9 +127,9 @@ const createContentController = async (req, res, next) => {
         "Kindly check your notifications section in bidesh online app to get the full access to the content."
       );
 
+      await con.save();
       return res.send({ message: "Content sucessfully created." });
     } catch (e) {
-      console.log(e);
       return next(new CustomError(500, "Error in notification sending."));
     }
   } catch (e) {

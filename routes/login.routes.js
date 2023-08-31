@@ -66,7 +66,7 @@ router.post("/", async (req, res, next) => {
         expiresIn: 60 * 60 * 24 * 30,
       });
       user.deviceId=deviceId;
-      user.save();
+      await user.save();
       return res.json({
         token,
         userType: "normal",

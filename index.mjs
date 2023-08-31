@@ -1,5 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+
+// import admin from "firebase";
+
 import connectDb from "./database.js";
 import { auth } from "./middleware/auth.mjs";
 import userRouter from "./routes/user.routes.js";
@@ -28,6 +31,14 @@ import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
 import { Country } from "./models/Country.mjs";
 import { Language } from "./models/Language.mjs";
+
+import admin from "firebase-admin";
+import serviceAccount from "./service_json.json" assert { type: "json" };
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // databaseURL: "https://sample-project-e1a84.firebaseio.com"
+});
 
 dotenv.config();
 const app = express();
@@ -221,6 +232,41 @@ app.get("/download-csv-of-user", [auth, isAdmin], async (req, res) => {
   // });
 });
 
+const notification_options = {
+  priority: "high",
+  timeToLive: 60 * 60 * 24,
+};
+
+app.get("/send-push", async (req, res, next) => {
+  try {
+    // return res.send("CUNT");
+    const  registrationToken ="feWRQRqYS1SyCstOWANaWH:APA91bH61es-6lv4kykDG8gPnzu2Tw7QM4BCO6vfb4kTEUraOpf4Fb4kdBV51o8B9kC6Nol2YmD6W1_GyRUsweTvo08e2VtlJmvI-8ebLkyKoVTNWgpVbhemb8ijAJ093IHcU1PhNgzu";
+    // const registrationToken =
+      // "c6QNbrW8QdiNlHflBe8ACs:APA91bFDMAFa-TUp-WgpHtBq39n9S8FRJgX93S5OgVzXjOFSXtx8sES-ZhYlnYRV5eggCbFvO_WKmfXZRpsBHHJuX2Mn9Y-cAyebOlNX4Z-1IKGdqN1-q5JCZUR6ywG7MsBq06xpVaET";
+    const message = {
+      notification: {
+        title: "Hello",
+        body: "Yugal is bad bad boy.",
+      },
+      token: registrationToken,
+    };
+    const options = notification_options;
+    admin
+      .messaging()
+      .send(message)
+      .then((response) => {
+        res.status(200).send("Notification sent successfully");
+      })
+      .catch((e) => {
+        console.log(e);
+        return next(new CustomError(500, "Error in notification sending."));
+      });
+  } catch (e) {
+    console.log(e);
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+});
+
 app.use("/uploads", express.static("uploads"));
 app.use("/faqs", faqsRouter);
 app.use("/tabs", tabsFrontRouter);
@@ -237,6 +283,7 @@ app.use("/admin/image", imageRouter);
 app.use("/user", userRouter);
 app.use("/country", countryRouter);
 app.use("/notification", notificationRouter);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8000;

@@ -10,7 +10,7 @@ const router = express.Router();
 // Login a new user
 router.post("/", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password,deviceId } = req.body;
 
     const user = await User.findOne({ email, verified: true });
 
@@ -65,6 +65,8 @@ router.post("/", async (req, res, next) => {
       const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY, {
         expiresIn: 60 * 60 * 24 * 30,
       });
+      user.deviceId=deviceId;
+      user.save();
       return res.json({
         token,
         userType: "normal",

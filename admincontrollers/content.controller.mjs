@@ -7,25 +7,26 @@ import Joi from "joi";
 import { Journery } from "../models/Journey.mjs";
 import { Notification } from "../models/Notification.mjs";
 import jId from "joi-objectid";
+import { sendNotificationAtBulk } from "../utils/notificationSender.mjs";
 const jObjId = jId(Joi);
 
 const contentValidationSchema = Joi.object({
   title: Joi.string().required(),
-  youtube_video_link: Joi.string().allow(''),
+  youtube_video_link: Joi.string().allow(""),
   tab: jObjId(),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
-  image:Joi.allow()
+  image: Joi.allow(),
 });
 
 const contentUpdateValidationSchema = Joi.object({
   title: Joi.string().required(),
-  youtube_video_link: Joi.string().allow(''),
+  youtube_video_link: Joi.string().allow(""),
   journey: jObjId(),
   language: jObjId(),
   data: Joi.string().required(),
-  image:Joi.allow()
+  image: Joi.allow(),
 });
 
 const getContentController = async (req, res, next) => {
@@ -65,71 +66,81 @@ const getContentByIdController = async (req, res, next) => {
 
 const createContentController = async (req, res, next) => {
   try {
-  const { tab, journey, language, data, title,youtube_video_link } = req.body;
-  const notifications = [];
-  // Validate the request body against the schema
-  const { error } = contentValidationSchema.validate(req.body);
+    const { tab, journey, language, data, title, youtube_video_link } =
+      req.body;
+    const notifications = [];
+    const fmwTokens = [];
+    // Validate the request body against the schema
+    const { error } = contentValidationSchema.validate(req.body);
 
-  // Check for validation errors
-  if (error) {
-    return next(new CustomError(400, error.details[0].message));
-  }
-  const path = req?.file.path;
-  // console.log("************************")
-  // console.log(path);
-  // console.log("************************")
-  // console.log(journey);
-  const jor = await Journery.findById(journey);
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+    const path = req?.file.path;
 
-  // console.log(jor);
+    const jor = await Journery.findById(journey).populate("destination");
 
-  if (jor === null) {
-    return next(new CustomError(404, "This journey doesn't exist."));
-  }
+    if (jor === null) {
+      return next(new CustomError(404, "This journey doesn't exist."));
+    }
 
-  const con = await Content.find({ journey: journey, tab: tab });
-  if (con.length > 0) {
-    return next(
-      new CustomError(
-        404,
-        "Content with this journey and language already exists."
-      )
-    );
-  }
+    const con = await Content.find({ journey: journey, tab: tab });
+    if (con.length > 0) {
+      return next(
+        new CustomError(
+          404,
+          "Content with this journey and language already exists."
+        )
+      );
+    }
 
-  // const destUsers = await DestinationUser.find({
-  //   destination: jor.destination,
-  // });
+    const cont = new Content({
+      tab,
+      journey,
+      language,
+      data,
+      creator: req.user.userId,
+      title,
+      youtube_video_link,
+      background_image: path,
+    });
 
-  const cont = new Content({
-    tab,
-    journey,
-    language,
-    data,
-    creator: req.user.userId,
-    title,
-    youtube_video_link,
-    background_image:path
-  });
-  console.log(cont);
+    // console.log(jor.destination);
 
-  // for (let i = 0; destUsers.length; i++) {
-  //   notifications.push({ user: destUsers[i].user, content: cont._id });
-  // }
+    const destUsers = await DestinationUser.find({
+      destination: jor.destination._id,
+    }).populate({ path: "user", select: "_id deviceId email" });
 
-  // await Notification.insertMany(notifications);
+    for (let i = 0; i < destUsers.length; i++) {
+      // console.log(destUsers[i]?.user?.email)
+      notifications.push({ user: destUsers[i].user._id, content: cont._id });
+      fmwTokens.push(destUsers[i]?.user?.deviceId);
+    }
 
-  await cont.save();
+    try {
+      await Notification.insertMany(notifications);
 
-  return res.send({ message: "Content sucessfully created." });
+      await sendNotificationAtBulk(
+        fmwTokens,
+        `Content added for ${jor.destination.name}.`,
+        "Kindly check your notifications section in bidesh online app to get the full access to the content."
+      );
+
+      return res.send({ message: "Content sucessfully created." });
+    } catch (e) {
+      console.log(e);
+      return next(new CustomError(500, "Error in notification sending."));
+    }
   } catch (e) {
+    console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
 
 const updateContentController = async (req, res, next) => {
   try {
-    const { journey, language, data,title,youtube_video_link } = req.body;
+    const { journey, language, data, title, youtube_video_link } = req.body;
     // Validate the request body against the schema
     const { error } = contentUpdateValidationSchema.validate(req.body);
 
@@ -145,16 +156,13 @@ const updateContentController = async (req, res, next) => {
       return next(new CustomError(404, "Content doesn't exist."));
     }
 
-
-
     con.journey = journey;
     con.language = language;
     con.data = data;
-    con.title=title;
-    con.youtube_video_link=youtube_video_link;
-    if(path!==null && path!==undefined)
-    {
-      con.background_image=path;
+    con.title = title;
+    con.youtube_video_link = youtube_video_link;
+    if (path !== null && path !== undefined) {
+      con.background_image = path;
     }
     await con.save();
 

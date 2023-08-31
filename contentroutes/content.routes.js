@@ -19,6 +19,9 @@ import { CustomError } from "../error/CustomError.mjs";
 import { Journery } from "../models/Journey.mjs";
 import { Contentcreatorcountry } from "../models/ContentCreatorCountry.mjs";
 import { upload } from "../adminutils/image.upload.mjs";
+import { DestinationUser } from "../models/User.mjs";
+import { Notification } from "../models/Notification.mjs";
+import { sendNotificationAtBulk } from "../utils/notificationSender.mjs";
 const jObjId = jId(Joi);
 const router = express.Router();
 
@@ -155,12 +158,16 @@ router.post(
       // Validate the request body against the schema
       const { error } = contentValidationSchema.validate(req.body);
 
+      const notifications=[];
+      const fmwTokens=[]
+
       // Check for validation errors
       if (error) {
         return next(new CustomError(400, error.details[0].message));
       }
 
-      const actJour = await Journery.findById(journey);
+      const actJour = await Journery.findById(journey).populate("destination");
+
       if (actJour === null) {
         return next(
           new CustomError(404, "Journey with this id doesn't exists.")
@@ -202,7 +209,31 @@ router.post(
         youtube_video_link,
         background_image: path,
       });
-      await cont.save();
+
+      const destUsers = await DestinationUser.find({
+        destination: actJour.destination._id,
+      }).populate({ path: "user", select: "_id deviceId email" });
+  
+      for (let i = 0; i < destUsers.length; i++) {
+        notifications.push({ user: destUsers[i].user._id, content: cont._id });
+        fmwTokens.push(destUsers[i]?.user?.deviceId);
+      }
+  
+      try {
+        await Notification.insertMany(notifications);
+  
+        await sendNotificationAtBulk(
+          fmwTokens,
+          `Content added for ${actJour.destination.name}.`,
+          "Kindly check your notifications section in bidesh online app to get the full access to the content."
+        );
+        await cont.save();
+        return res.send({ message: "Content sucessfully created." });
+      } catch (e) {
+        console.log(e);
+        return next(new CustomError(500, "Error in notification sending."));
+      }
+
 
       return res.send({ message: "Content sucessfully created." });
     } catch (e) {

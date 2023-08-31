@@ -25,20 +25,14 @@ import tabsRouterContent from "./contentroutes/tabs.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
 import { CustomError } from "./error/CustomError.mjs";
 import { errorHandler } from "./error/handler.mjs";
+import {getMessaging} from "@firebase/messaging"
 import cors from "cors";
-import fs from "fs";
+
 import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
 import { Country } from "./models/Country.mjs";
 import { Language } from "./models/Language.mjs";
-
-import admin from "firebase-admin";
-import serviceAccount from "./service_json.json" assert { type: "json" };
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  // databaseURL: "https://sample-project-e1a84.firebaseio.com"
-});
+import { sendNotification, sendNotificationAtBulk } from "./utils/notificationSender.mjs";
 
 dotenv.config();
 const app = express();
@@ -239,28 +233,19 @@ const notification_options = {
 
 app.get("/send-push", async (req, res, next) => {
   try {
-    // return res.send("CUNT");
-    const  registrationToken ="feWRQRqYS1SyCstOWANaWH:APA91bH61es-6lv4kykDG8gPnzu2Tw7QM4BCO6vfb4kTEUraOpf4Fb4kdBV51o8B9kC6Nol2YmD6W1_GyRUsweTvo08e2VtlJmvI-8ebLkyKoVTNWgpVbhemb8ijAJ093IHcU1PhNgzu";
-    // const registrationToken =
-      // "c6QNbrW8QdiNlHflBe8ACs:APA91bFDMAFa-TUp-WgpHtBq39n9S8FRJgX93S5OgVzXjOFSXtx8sES-ZhYlnYRV5eggCbFvO_WKmfXZRpsBHHJuX2Mn9Y-cAyebOlNX4Z-1IKGdqN1-q5JCZUR6ywG7MsBq06xpVaET";
-    const message = {
-      notification: {
-        title: "Hello",
-        body: "Yugal is bad bad boy.",
-      },
-      token: registrationToken,
-    };
-    const options = notification_options;
-    admin
-      .messaging()
-      .send(message)
-      .then((response) => {
-        res.status(200).send("Notification sent successfully");
-      })
-      .catch((e) => {
-        console.log(e);
-        return next(new CustomError(500, "Error in notification sending."));
-      });
+    const registrationTokens = [
+      "feWRQRqYS1SyCstOWANaWH:APA91bH61es-6lv4kykDG8gPnzu2Tw7QM4BCO6vfb4kTEUraOpf4Fb4kdBV51o8B9kC6Nol2YmD6W1_GyRUsweTvo08e2VtlJmvI-8ebLkyKoVTNWgpVbhemb8ijAJ093IHcU1PhNgzu"
+    ];
+     try {
+      await sendNotificationAtBulk(registrationTokens, "Hello", "Bro is epic.");
+      return res.status(200).send("Notification sent successfully");
+
+    } catch (e) {
+      console.log(e);
+      return next(new CustomError(500, "Error in notification sending."));
+    }
+
+
   } catch (e) {
     console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));

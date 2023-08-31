@@ -126,11 +126,10 @@ const createContentController = async (req, res, next) => {
         `Content added for ${jor.destination.name}.`,
         "Kindly check your notifications section in bidesh online app to get the full access to the content."
       );
-
-      await con.save();
+      await cont.save();
       return res.send({ message: "Content sucessfully created." });
     } catch (e) {
-      return next(new CustomError(500, "Error in notification sending."));
+      return next(new CustomError(500, "Something went wrong."));
     }
   } catch (e) {
     console.log(e);

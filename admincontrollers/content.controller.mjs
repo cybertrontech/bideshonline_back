@@ -131,6 +131,7 @@ const createContentController = async (req, res, next) => {
     } catch (e) {
       return next(new CustomError(500, "Something went wrong."));
     }
+
   } catch (e) {
     console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));

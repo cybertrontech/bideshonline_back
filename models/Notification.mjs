@@ -4,20 +4,32 @@ import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema(
   {
-    content:{
-        type: mongoose.Schema.Types.ObjectId,
-        required:true,
-        ref:"Content"
+    content: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required:true,
+      ref: "Content",
     },
-    user:{
-        type: mongoose.Schema.Types.ObjectId,
-        required:true,
-        ref:"User"
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required:true,
+      ref: "User",
     },
-    seen:{
-        type:Boolean,
-        default:false
-    }
+
+    seen: {
+      type: Boolean,
+      default: false,
+    },
+    type: {
+      type: String,
+      enum: ["push", "normal"],
+      default: "normal",
+    },
+    title: {
+      type: String,
+    },
+    body: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
@@ -25,4 +37,4 @@ const notificationSchema = new mongoose.Schema(
 // Create the User model
 const Notification = mongoose.model("Notification", notificationSchema);
 
-export  {Notification};
+export { Notification };

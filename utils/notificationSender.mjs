@@ -34,6 +34,7 @@ const sendNotificationAtBulk = async (fmwTokens, title, body) => {
     },
   };
 
+
   await admin
     .messaging()
     .sendMulticast({ tokens: fmwTokens, notification: message.notification });

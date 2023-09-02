@@ -30,7 +30,7 @@ const userValidationSchema = Joi.object({
 
 const userValidationSchemaForGoogle = Joi.object({
   first_name: Joi.string().required(),
-  last_name: Joi.string().required(),
+  last_name: Joi.string(),
   email: Joi.string().email().required(),
   deviceId: Joi.string().allow("").optional(),
   origin: Joi.string().required(),
@@ -183,7 +183,7 @@ const createUserControllerGoogle = async (req, res, next) => {
       first_name,
       last_name,
       email,
-      deviceId,
+      // deviceId,
       origin,
       destination,
       language,
@@ -217,7 +217,7 @@ const createUserControllerGoogle = async (req, res, next) => {
       email,
       password: newpass,
       userType: "normal",
-      deviceId,
+      // deviceId,
       origin,
       language,
     });

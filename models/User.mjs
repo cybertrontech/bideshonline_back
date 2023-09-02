@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     },
     last_name: {
       type: String,
-      required: true,
+      // required: true,
     },
     verified: {
       type: Boolean,

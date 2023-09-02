@@ -30,8 +30,9 @@ const userValidationSchema = Joi.object({
 
 const userValidationSchemaForGoogle = Joi.object({
   first_name: Joi.string().required(),
-  last_name: Joi.string(),
+  last_name: Joi.string().allow(""),
   email: Joi.string().email().required(),
+
   deviceId: Joi.string().allow("").optional(),
   origin: Joi.string().required(),
   destination: Joi.array().items(Joi.string()).required(),

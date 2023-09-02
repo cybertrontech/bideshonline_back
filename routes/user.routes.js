@@ -7,6 +7,7 @@ import {
   editFrontUserController,
   editUserStatusController,
   createUserControllerByAdmin,
+  createUserControllerGoogle,
   forgotPassword,
   getAllUsersController,
   getUserTypeController,
@@ -45,6 +46,9 @@ router.get("/user-status/:userId", [auth, isAdmin], editUserStatusController);
 
 // Create a new user
 router.post("/", createUserController);
+
+// Create a new user google
+router.post("/google", createUserControllerGoogle);
 
 // Create a new user
 router.post("/by-admin", createUserControllerByAdmin);

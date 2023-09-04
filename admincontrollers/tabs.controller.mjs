@@ -49,10 +49,30 @@ const activateDeactivateTabController = async (req, res, next) => {
   }
 };
 
-const deleteTabsController=async (req, res, next) => {
+const deleteTabsController = async (req, res, next) => {
   try {
     await Tabs.findOneAndDelete({ _id: req.params.tabId });
     return res.send({ message: "Successfully deleted the tab." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const updateTabsController = async (req, res, next) => {
+  try {
+    const { title } = req.body;
+    const path = req?.file?.path;
+    let tab = await Tabs.findById({ _id: req.params.tabId });
+    if (tab === null) {
+      return next(new CustomError(404, "Tab with this id doesn't exist."));
+    }
+    tab.title = title;
+    if (path) {
+      tab.image = path;
+    }
+    tab.save();
+
+    return res.send({ message: "Successfully updated this tab." });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -62,5 +82,6 @@ export {
   createTabsController,
   getTabsController,
   activateDeactivateTabController,
-  deleteTabsController
+  deleteTabsController,
+  updateTabsController,
 };

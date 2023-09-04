@@ -13,7 +13,7 @@ const createFaqAdminSchema = Joi.object({
 
 const getFaqsController = async (req, res, next) => {
   try {
-    const faqs = await Faqs.find({active:true}).select("-__v -active");
+    const faqs = await Faqs.find({active:true}).select("-__v -active").sort("-createdAt");
     return res.send(faqs);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));

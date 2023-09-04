@@ -7,7 +7,7 @@ import { DestinationUser } from "../models/User.mjs";
 
 const getAllCountryController = async (req, res, next) => {
   try {
-    const countries = await Country.find({}).select("-__v -active");
+    const countries = await Country.find({}).select("-__v -active").sort("-createdAt");
     return res.send(countries);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));

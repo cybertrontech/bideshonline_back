@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: appleboy/ssh-action#80
+        uses: appleboy/ssh-action@master
         with: 
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}

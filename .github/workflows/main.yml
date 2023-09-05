@@ -12,17 +12,16 @@ jobs:
 
     - name: Copy repository contents via scp
       uses: appleboy/scp-action@master
-      env:
+      with:
         HOST: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}
         PORT: ${{ secrets.PORT }}
         KEY: ${{ secrets.SSHKEY }}
-      with:
         source: "."
         target: "/root/bideshonline_back"
 
     - name: Executing remote command
-      uses: appleboy/ssh-action@0.1.4
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         USERNAME: ${{ secrets.USERNAME }}

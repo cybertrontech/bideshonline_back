@@ -14,7 +14,7 @@ function errorHandler(err, req, res, next){
   
     // Log the error
     // console.error(err);
-    console.log(err);
+    // console.log(err);
   
     // Send error response to the client
     res.status(statusCode).json({ error: message });

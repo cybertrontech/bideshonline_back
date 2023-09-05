@@ -36,7 +36,7 @@ const getDestinationCountryController = async (req, res, next) => {
 
 const getDestinationCountryControllerByUser = async (req, res, next) => {
   try {
-    // console.log(req.user.userId);
+    // // console.log(req.user.userId);
     const countries = await DestinationUser.find({user:req.user.userId})
       .populate({ path: "destination", select: "_id name" })
       .select("-__v -user");

@@ -62,7 +62,7 @@ router.post("/push", [auth, isAdmin], async (req, res, next) => {
       await noti.save();
       return res.send({ message: "Push notification sent." });
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       return next(new CustomError(500, "Something went wrong."));
     }
   } catch (e) {

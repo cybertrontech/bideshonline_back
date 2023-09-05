@@ -21,7 +21,7 @@ const sendNotification = async (fmwToken, title, body) => {
   //   return res.status(200).send("Notification sent successfully");
   // })
   // .catch((e) => {
-  //   console.log(e);
+  //   // console.log(e);
   //   return next(new CustomError(500, "Error in notification sending."));
   // });
 };

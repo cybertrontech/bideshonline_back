@@ -30,7 +30,7 @@ const getAllJourneyController = async (req, res, next) => {
 
 const createContryController = async (req, res, next) => {
   try {
-    // console.log("creatingggggg");
+    // // console.log("creatingggggg");
     const { name } = req.body;
     // Validate the request body against the schema
     const { error, value } = countryValidationSchema.validate(req.body);
@@ -134,7 +134,7 @@ const createJourneyController = async (req, res, next) => {
 
 const updateJourneyController = async (req, res, next) => {
   try {
-    console.log("it's hitting this");
+    // console.log("it's hitting this");
     const { origin, destination } = req.body;
 
     if (origin === destination) {

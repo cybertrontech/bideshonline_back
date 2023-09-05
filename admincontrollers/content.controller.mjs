@@ -106,14 +106,14 @@ const createContentController = async (req, res, next) => {
       background_image: path,
     });
 
-    // console.log(jor.destination);
+    // // console.log(jor.destination);
 
     const destUsers = await DestinationUser.find({
       destination: jor.destination._id,
     }).populate({ path: "user", select: "_id deviceId email" });
 
     for (let i = 0; i < destUsers.length; i++) {
-      // console.log(destUsers[i]?.user?.email)
+      // // console.log(destUsers[i]?.user?.email)
       notifications.push({ user: destUsers[i].user._id, content: cont._id });
       fmwTokens.push(destUsers[i]?.user?.deviceId);
     }
@@ -133,7 +133,7 @@ const createContentController = async (req, res, next) => {
     }
 
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -181,7 +181,7 @@ const getContentCreatorCountriesByIdController = async (req, res, next) => {
     const user = await User.findById(req.params.userId).select(
       "_id email first_name last_name userType"
     );
-    console.log(user);
+    // console.log(user);
     if (user === null || user.userType !== "content") {
       return next(new CustomError(404, "This creator doesn't exist."));
     }

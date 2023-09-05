@@ -65,7 +65,7 @@ const updateLanguageWiseTabsController = async (req, res, next) => {
     if (error) {
       return next(new CustomError(400, error.details[0].message));
     }
-    console.log(req.body);
+    // console.log(req.body);
 
     const lwtb = await Languagewisetab.findById(req.params.langTabNameId);
     if (lwtb === null) {

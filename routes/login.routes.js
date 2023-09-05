@@ -94,10 +94,10 @@ router.post("/google", async (req, res, next) => {
       )
       .then(async (response) => {
         const { email } = response.data;
-        console.log(email);
+        // console.log(email);
 
         const user = await User.findOne({ email });
-        console.log(user);
+        // console.log(user);
 
         if (!user) {
           return next(new CustomError(401, "Invalid email or password"));
@@ -170,7 +170,7 @@ router.post("/google", async (req, res, next) => {
         }
       })
       .catch((error) => {
-        console.log(error);
+        // console.log(error);
         return next(new CustomError(500, "Something Went Wrong!"));
       });
   } catch (e) {

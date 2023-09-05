@@ -51,7 +51,7 @@ router.get(
       // const contentCreatorCountry = await Contentcreatorcountry.find({
       //   creator: req.user.userId,
       // });
-      // console.log(contentCreatorCountry);
+      // // console.log(contentCreatorCountry);
 
       const journey = await Journery.aggregate([
         {
@@ -230,7 +230,7 @@ router.post(
         await cont.save();
         return res.send({ message: "Content sucessfully created." });
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         return next(new CustomError(500, "Error in notification sending."));
       }
     } catch (e) {

@@ -14,7 +14,7 @@ const router=express.Router();
 router.post('/',[auth,isAdmin,upload.single("image")],async(req,res,next)=>{
     try {
         const path = req.file.path;
-        console.log(path)
+        // console.log(path)
         return res.send(path);
       } catch (e) {
         return next(new CustomError(500, "Something Went Wrong!"));

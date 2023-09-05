@@ -73,7 +73,7 @@ const getUserByIdController = async (req, res, next) => {
       destination: destUsers,
     });
   } catch (e) {
-    // console.log(e);
+    // // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -135,7 +135,7 @@ const createUserController = async (req, res, next) => {
     } = req.body;
     // Validate the request body against the schema
     const { error, value } = userValidationSchema.validate(req.body);
-    // console.log(value);
+    // // console.log(value);
 
     const destinations = [];
 
@@ -173,7 +173,7 @@ const createUserController = async (req, res, next) => {
 
     return res.status(200).json({ message: "Successfully Registered." });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -191,7 +191,7 @@ const createUserControllerGoogle = async (req, res, next) => {
     } = req.body;
     // Validate the request body against the schema
     const { error, value } = userValidationSchemaForGoogle.validate(req.body);
-    // console.log(value);
+    // // console.log(value);
 
     const destinations = [];
 
@@ -232,7 +232,7 @@ const createUserControllerGoogle = async (req, res, next) => {
 
     return res.status(200).json({ message: "Successfully Registered." });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
@@ -270,7 +270,7 @@ const createUserControllerByAdmin = async (req, res, next) => {
 
   return res.status(200).json({ message: "Successfully Registered." });
   // } catch (e) {
-  //   console.log(e);
+  //   // console.log(e);
   //   return next(new CustomError(500, "Something Went Wrong!"));
   // }
 };
@@ -278,10 +278,10 @@ const createUserControllerByAdmin = async (req, res, next) => {
 const getUserTypeController = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId).select("userType");
-    console.log(user);
+    // console.log(user);
     return res.send({ type: user });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };

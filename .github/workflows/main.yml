@@ -1,26 +1,31 @@
-name: CI/CD
+name: Deploy
 
-on:
-  push:
-    branches:
-      - master 
+on: [push]
 
 jobs:
-  build-and-deploy:
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: appleboy/ssh-action@master
-        with: 
-          host: ${{secrets.SSH_HOST}}
-          key: ${{secrets.SSH_KEY}}
-          username: ${{secrets.SSH_USER}}
+    - uses: actions/checkout@v1
 
-          script: |
-            cd bideshonline_back
-            git pull https://github.com/cybertrontech/bideshonline_back.git
-            npm install
-            pm2 restart 0
-            sudo systemctl restart nginx
-            echo 'Deployment success s'
+    - name: Copy repository contents via scp
+      uses: appleboy/scp-action@master
+      env:
+        HOST: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSHKEY }}
+      with:
+        source: "."
+        target: "/root/bideshonline_back"
+
+    - name: Executing remote command
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        USERNAME: ${{ secrets.USERNAME }}
+        PORT: ${{ secrets.PORT }}
+        KEY: ${{ secrets.SSHKEY }}
+        script: ls

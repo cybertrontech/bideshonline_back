@@ -12,16 +12,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with: 
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USER}}
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Deploy
-        run: |
-          sshpass -p ${{ secrets.SSHPASS }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << EOF
-            cd /root/bideshonline_back
-            git pull origin master 
-            npm install
-            npm run build
-            pm2 restart app
-          EOF
+          script: |
+            cd bideshonline_back
+            git clone git@github.com:cybertrontech/bideshonline_back.git
+            echo 'Deployment success'

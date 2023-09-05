@@ -20,4 +20,5 @@ jobs:
           script: |
             cd bideshonline_back
             git clone git@github.com:cybertrontech/bideshonline_back.git
+            npm install
             echo 'Deployment success'

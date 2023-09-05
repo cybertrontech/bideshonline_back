@@ -231,26 +231,15 @@ const notification_options = {
   timeToLive: 60 * 60 * 24,
 };
 
-// app.get("/send-push", async (req, res, next) => {
-//   try {
-//     const registrationTokens = [
-//       "feWRQRqYS1SyCstOWANaWH:APA91bH61es-6lv4kykDG8gPnzu2Tw7QM4BCO6vfb4kTEUraOpf4Fb4kdBV51o8B9kC6Nol2YmD6W1_GyRUsweTvo08e2VtlJmvI-8ebLkyKoVTNWgpVbhemb8ijAJ093IHcU1PhNgzu"
-//     ];
-//      try {
-//       await sendNotificationAtBulk(registrationTokens, "Hello", "Bro is epic.");
-//       return res.status(200).send("Notification sent successfully");
+app.get("/check", async (req, res, next) => {
+  try {
+    return res.send("Test success");
 
-//     } catch (e) {
-//       // console.log(e);
-//       return next(new CustomError(500, "Error in notification sending."));
-//     }
-
-
-//   } catch (e) {
-//     // console.log(e);
-//     return next(new CustomError(500, "Something Went Wrong!"));
-//   }
-// });
+  } catch (e) {
+    // console.log(e);
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+});
 
 app.use("/uploads", express.static("uploads"));
 app.use("/faqs", faqsRouter);

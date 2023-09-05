@@ -18,7 +18,7 @@ jobs:
 
       - name: Deploy
         run: |
-          sshpass -p ${{ secrets.SSH_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << EOF
+          sshpass -p ${{ secrets.SSHPASS }} ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.DROPLET_IP }} << EOF
             cd /root/bideshonline_back
             git pull origin master 
             npm install

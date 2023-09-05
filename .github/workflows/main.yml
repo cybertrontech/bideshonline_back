@@ -19,7 +19,7 @@ jobs:
 
           script: |
             cd bideshonline_back
-            git pull git@github.com:cybertrontech/bideshonline_back.git origin master
+            git pull https://github.com/cybertrontech/bideshonline_back.git
             npm install
             pm2 restart 0
             sudo systemctl restart nginx

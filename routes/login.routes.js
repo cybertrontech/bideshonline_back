@@ -62,6 +62,7 @@ router.post("/", async (req, res, next) => {
         language: user.language,
         origin: user.origin,
         image: user.image,
+        name: `${user.first_name} ${user.last_name}`,
       });
     } else {
       const token = jwt.sign({ userId: user._id }, process.env.PRIVATE_KEY, {

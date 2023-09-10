@@ -57,7 +57,7 @@ const getLanguageControllerId = async (req, res, next) => {
 };
 
 const createLanguageController = async (req, res, next) => {
-  try {
+  // try {
     const { name, country } = req.body;
 
     // Validate the request body against the schema
@@ -68,7 +68,7 @@ const createLanguageController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
-    const lang = await Language.find({ name });
+    const lang = await Language.find({ name,country });
     if (lang.length > 0) {
       return next(
         new CustomError(400, "Language with this name already exists.")
@@ -78,9 +78,9 @@ const createLanguageController = async (req, res, next) => {
     const lan = new Language({ name, country });
     await lan.save();
     return res.send({ message: "Language successfully created." });
-  } catch (e) {
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 };
 
 const updateLanguageController = async (req, res, next) => {

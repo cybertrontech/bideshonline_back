@@ -7,7 +7,6 @@ const languageSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique:true
     },
     country:{
         type: mongoose.Schema.Types.ObjectId,
@@ -18,6 +17,8 @@ const languageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+languageSchema.index({ name: 1, country: 1 }, { unique: true });
 
 // Create the User model
 const Language = mongoose.model("Language", languageSchema);

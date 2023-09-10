@@ -39,6 +39,12 @@ const userValidationSchemaForGoogle = Joi.object({
   language: Joi.string().required(),
 });
 
+const userValidationSchemaForAdmin = Joi.object({
+  first_name: Joi.string().required(),
+  last_name: Joi.string().allow(""),
+  email: Joi.string().email().required(),
+});
+
 const userValidationAdminSchema = Joi.object({
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -208,9 +214,8 @@ const createUserControllerGoogle = async (req, res, next) => {
 
     const salt = await bcrypt.genSalt(10);
 
-    const password=`${process.env.PRIVATE_KEY}${email}`;
+    const password = `${process.env.PRIVATE_KEY}${email}`;
     const newpass = await bcrypt.hash(password, salt);
-
 
     let newUser = new User({
       first_name,
@@ -468,6 +473,45 @@ const newPassword = async (req, res, next) => {
   }
 };
 
+const getUserByTokenAdminController = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.userId).select(
+      "_id first_name last_name email"
+    );
+    if (user === null) {
+      return next(new CustomError(404, "User this id doesn't exist."));
+    }
+    return res.send(user);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+const editUserByTokenAdminController = async (req, res, next) => {
+  try {
+    const { first_name, last_name, email } = req.body;
+
+    const { error } = userValidationSchemaForAdmin.validate(req.body);
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+    const user = await User.findById(req.user.userId);
+    if (user === null) {
+      return next(new CustomError(404, "User this id doesn't exist."));
+    }
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.email = email;
+
+    await user.save();
+
+    return res.send({first_name,last_name,email});
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   createUserController,
   editUserStatusController,
@@ -481,5 +525,7 @@ export {
   editFrontUserAdvanceController,
   forgotPassword,
   newPassword,
-  createUserControllerGoogle
+  createUserControllerGoogle,
+  getUserByTokenAdminController,
+  editUserByTokenAdminController,
 };

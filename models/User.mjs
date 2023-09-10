@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema(
     },
     forgotPasswordCode: {
       type: String,
+      default:""
     },
     forgotCodeExpired:{
      type:Boolean, 

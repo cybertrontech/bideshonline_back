@@ -12,6 +12,8 @@ import {
   getAllUsersController,
   getUserTypeController,
   editFrontUserAdvanceController,
+  getUserByTokenAdminController,
+  editUserByTokenAdminController,
   newPassword
 } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
@@ -24,6 +26,14 @@ router.get("/user_type", auth, getUserTypeController);
 
 // a  user by id 
 router.get("/one_user/:userId", [auth], getUserByIdController);
+
+// a  user by id  for admin
+router.get("/adminInfo", [auth,isAdmin], getUserByTokenAdminController);
+
+// a  edit user by id  for admin
+router.post("/editadminInfo", [auth,isAdmin], editUserByTokenAdminController);
+
+
 
 // Get all users
 router.get("/:userType", [auth, isAdmin], getAllUsersController);

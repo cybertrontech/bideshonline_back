@@ -10,6 +10,7 @@ const router=express.Router();
 //get all language
 router.get("/",[auth],getLanguageController);
 
+
 //get all language byId
 router.get("/:countryId",[auth],getLanguageControllerId);
 

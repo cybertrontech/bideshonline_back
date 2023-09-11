@@ -6,7 +6,7 @@ import jId from "joi-objectid";
 const jObjId = jId(Joi);
 
 const languageValidationSchema = Joi.object({
-  name: Joi.string().alphanum().required(),
+  name: Joi.string().required(),
   country: jObjId(),
 });
 
@@ -57,7 +57,7 @@ const getLanguageControllerId = async (req, res, next) => {
 };
 
 const createLanguageController = async (req, res, next) => {
-  // try {
+  try {
     const { name, country } = req.body;
 
     // Validate the request body against the schema
@@ -78,9 +78,9 @@ const createLanguageController = async (req, res, next) => {
     const lan = new Language({ name, country });
     await lan.save();
     return res.send({ message: "Language successfully created." });
-  // } catch (e) {
-  //   return next(new CustomError(500, "Something Went Wrong!"));
-  // }
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
 };
 
 const updateLanguageController = async (req, res, next) => {

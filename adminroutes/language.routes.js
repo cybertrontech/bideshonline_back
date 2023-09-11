@@ -13,7 +13,7 @@ router.get("/",[auth],getLanguageController);
 //get all language byId
 router.get("/:countryId",[auth],getLanguageControllerId);
 
-// // create tabs 
+// // create  lanugage
 router.post('/',[auth,isAdmin],createLanguageController);
 
 // // update language 

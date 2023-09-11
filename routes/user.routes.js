@@ -19,6 +19,7 @@ import {
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
 import {upload} from "../adminutils/image.upload.mjs";
+import { isAdminOrCreator } from "../middleware/adminorcontent.mjs";
 const router = express.Router();
 
 // a  user type
@@ -28,10 +29,10 @@ router.get("/user_type", auth, getUserTypeController);
 router.get("/one_user/:userId", [auth], getUserByIdController);
 
 // a  user by id  for admin
-router.get("/adminInfo", [auth,isAdmin], getUserByTokenAdminController);
+router.get("/adminInfo", [auth,isAdminOrCreator], getUserByTokenAdminController);
 
 // a  edit user by id  for admin
-router.post("/editadminInfo", [auth,isAdmin], editUserByTokenAdminController);
+router.post("/editadminInfo", [auth,isAdminOrCreator], editUserByTokenAdminController);
 
 
 

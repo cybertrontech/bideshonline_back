@@ -24,7 +24,7 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
         script: |
-          cd ~/root/bideshonline_back
+          cd /root/bideshonline_back
           git pull origin master
           git status
           npm install --only=prod

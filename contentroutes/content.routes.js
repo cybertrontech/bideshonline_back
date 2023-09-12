@@ -216,18 +216,25 @@ router.post(
 
       for (let i = 0; i < destUsers.length; i++) {
         notifications.push({ user: destUsers[i].user._id, content: cont._id });
-        fmwTokens.push(destUsers[i]?.user?.deviceId);
+        if (
+          destUsers[i]?.user?.deviceId !== undefined &&
+          destUsers[i]?.user?.deviceId !== null
+        ) {
+          fmwTokens.push(destUsers[i]?.user?.deviceId);
+        }
       }
 
       try {
         await Notification.insertMany(notifications);
-
+        if (fmwTokens.length > 0) {
         await sendNotificationAtBulk(
           fmwTokens,
           `Content added for ${actJour.destination.name}.`,
           "Kindly check your notifications section in bidesh online app to get the full access to the content."
         );
+        }
         await cont.save();
+
         return res.send({ message: "Content sucessfully created." });
       } catch (e) {
         // console.log(e);

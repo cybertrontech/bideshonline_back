@@ -123,7 +123,7 @@ const createContentController = async (req, res, next) => {
       }
     }
 
-    console.log(fmwTokens);
+    // console.log(fmwTokens);
 
     try {
       await Notification.insertMany(notifications);

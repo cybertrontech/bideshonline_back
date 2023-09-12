@@ -115,23 +115,32 @@ const createContentController = async (req, res, next) => {
     for (let i = 0; i < destUsers.length; i++) {
       // // console.log(destUsers[i]?.user?.email)
       notifications.push({ user: destUsers[i].user._id, content: cont._id });
-      fmwTokens.push(destUsers[i]?.user?.deviceId);
+      if (
+        destUsers[i]?.user?.deviceId !== undefined &&
+        destUsers[i]?.user?.deviceId !== null
+      ) {
+        fmwTokens.push(destUsers[i]?.user?.deviceId);
+      }
     }
+
+    console.log(fmwTokens);
 
     try {
       await Notification.insertMany(notifications);
-
-      await sendNotificationAtBulk(
-        fmwTokens,
-        `Content added for ${jor.destination.name}.`,
-        "Kindly check your notifications section in bidesh online app to get the full access to the content."
-      );
+      if (fmwTokens.length > 0) {
+        await sendNotificationAtBulk(
+          fmwTokens,
+          `Content added for ${jor.destination.name}.`,
+          "Kindly check your notifications section in bidesh online app to get the full access to the content."
+        );
+      }
       await cont.save();
       return res.send({ message: "Content sucessfully created." });
     } catch (e) {
-      return next(new CustomError(500, "Something went wrong."));
+      return next(
+        new CustomError(500, "Something went wrong (Notification section) .")
+      );
     }
-
   } catch (e) {
     // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));

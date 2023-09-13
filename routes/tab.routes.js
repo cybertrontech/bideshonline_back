@@ -15,154 +15,181 @@ const ObjectId = mongoose.Types.ObjectId;
 // get all tabs list
 router.get("/", auth, async (req, res, next) => {
   try {
-    // const tabs = await Tabs.find({ active: true }).select("-__v -active");
-    const user = await User.findById(req.user.userId);
-    if (user === null) {
-      return next(new CustomError(404, "User with this id doesn't exist."));
-    }
+  // const tabs = await Tabs.find({ active: true }).select("-__v -active");
+  const user = await User.findById(req.user.userId);
+  if (user === null) {
+    return next(new CustomError(404, "User with this id doesn't exist."));
+  }
+  console.log(user.language);
 
-    const cons = await Content.aggregate([
-   
-      {
-        $lookup: {
-          from: "journeries",
-          localField: "journey",
-          foreignField: "_id",
-          as: "jor",
-        },
+  const cons = await Content.aggregate([
+    {
+      $lookup: {
+        from: "journeries",
+        localField: "journey",
+        foreignField: "_id",
+        as: "jor",
       },
-      {
-        $unwind: "$jor",
+    },
+    {
+      $unwind: "$jor",
+    },
+    {
+      $addFields: {
+        dest: "$jor.destination",
       },
-      {
-        $addFields: {
-          dest: "$jor.destination",
-        },
-      },
-      {
-        $lookup: {
-          from: "destinationusers",
-          let: { desti: "$dest" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user", new ObjectId(req.user.userId)] },
-                    { $eq: ["$destination", "$$desti"] },
-                  ],
-                },
+    },
+    {
+      $lookup: {
+        from: "destinationusers",
+        let: { desti: "$dest" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$user", new ObjectId(req.user.userId)] },
+                  { $eq: ["$destination", "$$desti"] },
+                ],
               },
             },
-          ],
-          as: "destinations",
-        },
+          },
+        ],
+        as: "destinations",
       },
-      {
-        $addFields: {
-          destLen: { $size: "$destinations" },
-        },
+    },
+    {
+      $addFields: {
+        destLen: { $size: "$destinations" },
       },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          journey: 1,
-          tab: 1,
-          dest: 1,
-          d: 1,
-          destLen: 1,
-          background_image:1
-        },
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        journey: 1,
+        tab: 1,
+        dest: 1,
+        d: 1,
+        destLen: 1,
+        background_image: 1,
       },
-    ]);
+    },
+  ]);
 
-    const t = await Journery.populate(cons, {
-      path: "journey",
-      select: "_id origin",
-    });
+  const t = await Journery.populate(cons, {
+    path: "journey",
+    select: "_id origin",
+  });
 
-    const finalQuery = t.filter(
-      (obj) =>
-        obj.journey.origin.toString() === user.origin.toString() &&
-        obj.destLen > 0
-    );
+  const finalQuery = t.filter(
+    (obj) =>
+      obj.journey.origin.toString() === user.origin.toString() &&
+      obj.destLen > 0
+  );
 
+  const tabs = await Tabs.aggregate([
+    {
+      $lookup: {
+        from: "contents",
+        localField: "_id",
+        foreignField: "tab",
+        as: "con",
+      },
+    },
+    {
+      $addFields: {
+        contentCount: { $size: "$con" }, // Add a field with the count
+      },
+    },
 
-
-    const tabs = await Tabs.aggregate([
-      {
-        $lookup: {
-          from: "contents",
-          localField: "_id",
-          foreignField: "tab",
-          as: "con",
-        },
-      },
-      {
-        $addFields: {
-          contentCount: { $size: "$con" }, // Add a field with the count
-        },
-      },
-      {
-        $lookup: {
-          from: "languagewisetabs",
-          localField: "_id",
-          foreignField: "tab",
-          as: "alternate",
-        },
-      },
-
-      {
-        $unwind: { path: "$alternate", preserveNullAndEmptyArrays: true },
-      },
-      {
-        $project: {
-          "alternate._id": 0,
-          "alternate.createdAt": 0,
-          "alternate.updatedAt": 0,
-          "alternate.__v": 0,
-        },
-      },
-      {
-        $addFields: {
-          hasAlternate: {
-            $cond: {
-              if: { $isArray: "$alternate" },
-              then: true,
-              else: false,
+    // {
+    //   $lookup: {
+    //     from: "languagewisetabs",
+    //     localField: "_id",
+    //     foreignField: "tab",
+    //     as: "alternate",
+    //   },
+    // },
+    {
+      $lookup: {
+        from: "languagewisetabs",
+        let: {  tabId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                    $eq: ["$tab", "$$tabId"], // Match on _id field from 'products' and 'productId' variable
+              },
             },
+          },
+          {
+            $match: {
+              $expr: {
+                    $eq: ["$language", new ObjectId(user.language)], // Match on _id field from 'products' and 'productId' variable
+              },
+            },
+          },
+
+
+          // Add more pipeline stages as needed to filter or transform the data
+        ],
+        as: "alternate",
+      },
+    },
+
+    {
+      $unwind: { path: "$alternate", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $project: {
+        "alternate._id": 0,
+        "alternate.createdAt": 0,
+        "alternate.updatedAt": 0,
+        "alternate.__v": 0,
+      },
+    },
+    {
+      $addFields: {
+        hasAlternate: {
+          $cond: {
+            if: { $isArray: "$alternate" },
+            then: true,
+            else: false,
           },
         },
       },
-      {
-        $match: {
-          $or: [
-            { hasAlternate: false }, // Retain documents without "alternate" field
-            { "alternate.language": new ObjectId(user.language) }, // Match valid language ID
-          ],
-        },
+    },
+
+    // {
+    //   $match: {
+    //     $or: [
+    //       { hasAlternate: false }, // Retain documents without "alternate" field
+    //       { "alternate.language": new ObjectId(user.language) }, // Match valid language ID
+    //     ],
+    //   },
+    // },
+
+    {
+      $project: {
+        hasAlternate: 0, // Remove the temporary field used for matching
+        // contentCount:1
+        con: 0,
       },
-      {
-        $project: {
-          hasAlternate: 0, // Remove the temporary field used for matching
-          // contentCount:1
-          con: 0,
-        },
-      },
-      // {
-      //   $match: {
-      //     "alternate.language": new ObjectId("64aed0d17de756ca24eff40d"),
-      //   },
-      // },
-    ]);
-    return res.send({recentContent:finalQuery,tabs});
+    },
+    // {
+    //   $match: {
+    //     "alternate.language": new ObjectId("64aed0d17de756ca24eff40d"),
+    //   },
+    // },
+  ]);
+  return res.send({ recentContent: finalQuery, tabs });
   } catch (e) {
     return next(new Error());
   }
 });
 
-// get contents wise  
+// get contents wise
 router.get("/contents/:tabId", auth, async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: req.user.userId });
@@ -221,7 +248,7 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
           dest: 1,
           d: 1,
           destLen: 1,
-          background_image:1
+          background_image: 1,
         },
       },
     ]);

@@ -52,13 +52,18 @@ router.post("/push", [auth, isAdmin], async (req, res, next) => {
     const users = await User.find({ userType: "admin" });
 
     for (let i = 0; i < users.length; i++) {
-      if (users[i].deviceId !== "") {
+      if (
+        users[i]?.user?.deviceId !== undefined &&
+        users[i]?.user?.deviceId !== null
+      ) {
         fmwTokens.push(users[i].deviceId);
       }
     }
 
     try {
-      await sendNotificationAtBulk(fmwTokens, title, body);
+      if (fmwTokens.length > 0) {
+        await sendNotificationAtBulk(fmwTokens, title, body);
+      }
       await noti.save();
       return res.send({ message: "Push notification sent." });
     } catch (e) {

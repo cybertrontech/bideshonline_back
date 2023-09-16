@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
+// import { ObjectId } from "mongodb";
 dotenv.config();
 import { auth } from "../middleware/auth.mjs";
 import { isContentCreator } from "../middleware/content.mjs";
@@ -22,6 +23,8 @@ import { upload } from "../adminutils/image.upload.mjs";
 import { DestinationUser } from "../models/User.mjs";
 import { Notification } from "../models/Notification.mjs";
 import { sendNotificationAtBulk } from "../utils/notificationSender.mjs";
+const ObjectId = mongoose.Types.ObjectId;
+
 const jObjId = jId(Joi);
 const router = express.Router();
 
@@ -51,7 +54,7 @@ router.get(
       // const contentCreatorCountry = await Contentcreatorcountry.find({
       //   creator: req.user.userId,
       // });
-      // // console.log(contentCreatorCountry);
+      console.log(req.user.userId);
 
       const journey = await Journery.aggregate([
         {
@@ -59,10 +62,20 @@ router.get(
             from: "contentcreatorcountries",
             localField: "origin",
             foreignField: "country",
+            let: { tabId: new ObjectId(req.user.useId) },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ["$creator", new ObjectId(req.user.userId)], 
+                  },
+                },
+              },
+            ],
             as: "jor",
           },
         },
-        {
+          {
           $unwind: "$jor",
         },
         {
@@ -227,11 +240,11 @@ router.post(
       try {
         await Notification.insertMany(notifications);
         if (fmwTokens.length > 0) {
-        await sendNotificationAtBulk(
-          fmwTokens,
-          `Content added for ${actJour.destination.name}.`,
-          "Kindly check your notifications section in bidesh online app to get the full access to the content."
-        );
+          await sendNotificationAtBulk(
+            fmwTokens,
+            `Content added for ${actJour.destination.name}.`,
+            "Kindly check your notifications section in bidesh online app to get the full access to the content."
+          );
         }
         await cont.save();
 

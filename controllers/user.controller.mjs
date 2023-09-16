@@ -422,15 +422,20 @@ const forgotPassword = async (req, res, next) => {
     user.forgotPasswordCode = code;
     user.forgotCodeExpired = false;
     try {
+
       const subject = "Forgot Password";
       const text = `Dear ${user.first_name} ${user.last_name}, Please donot share this with anyone. Your password recovery code is : ${code}`;
+
       await sendEmail(email, code, subject, text);
+
       await user.save();
+
       return res.send({
         message: "Code successfully sent to your mail.Please check your email.",
       });
+
     } catch (e) {
-      return next(new CustomError(500, "Something Went Wrong!"));
+      return next(new CustomError(500, "Something Went Wrong In Mail!"));
     }
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));

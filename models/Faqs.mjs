@@ -11,6 +11,10 @@ const fqsSchema = new mongoose.Schema(
       type: String,
       default:"",
     },
+    journey:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Journery"
+    },
     active:{
       type:Boolean,
       default:true

@@ -1,19 +1,30 @@
 import { CustomError } from "../error/CustomError.mjs";
 import { Faqs } from "../models/Faqs.mjs";
 import Joi from "joi";
+import jId from "joi-objectid";
+const jObjId = jId(Joi);
 
 const createFaqSchema = Joi.object({
   question: Joi.string().required(),
+  journey: jObjId(),
 });
 
 const createFaqAdminSchema = Joi.object({
   question: Joi.string().required(),
   answer: Joi.string().required(),
+  journey: jObjId(),
 });
 
 const getFaqsController = async (req, res, next) => {
   try {
-    const faqs = await Faqs.find({active:true}).select("-__v -active").sort("-createdAt");
+    const faqs = await Faqs.find({ active: true })
+      .populate({
+        path: "journey",
+        populate: { path: "origin destination", select: "_id name" },
+      })
+      .select("-__v -active")
+      .sort("-createdAt");
+
     return res.send(faqs);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -22,7 +33,7 @@ const getFaqsController = async (req, res, next) => {
 
 const createFaqsController = async (req, res, next) => {
   try {
-    const { question } = req.body;
+    const { question, journey } = req.body;
     const { error, value } = createFaqSchema.validate(req.body);
 
     // Check for validation errors
@@ -32,9 +43,10 @@ const createFaqsController = async (req, res, next) => {
 
     const faq = new Faqs({
       question,
+      journey,
     });
     await faq.save();
-    return res.send({...faq._doc});
+    return res.send({ ...faq._doc });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -42,7 +54,7 @@ const createFaqsController = async (req, res, next) => {
 
 const createFaqsAdminController = async (req, res, next) => {
   try {
-    const { question,answer } = req.body;
+    const { question, answer, journey } = req.body;
     const { error, value } = createFaqAdminSchema.validate(req.body);
 
     // Check for validation errors
@@ -52,16 +64,15 @@ const createFaqsAdminController = async (req, res, next) => {
 
     const faq = new Faqs({
       question,
-      answer
+      answer,
+      journey,
     });
     await faq.save();
-    return res.send({...faq._doc});
+    return res.send({ ...faq._doc });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
 };
-
-
 
 const updateFaqsController = async (req, res, next) => {
   try {
@@ -94,5 +105,5 @@ export {
   createFaqsController,
   updateFaqsController,
   deleteFaqsController,
-  createFaqsAdminController
+  createFaqsAdminController,
 };

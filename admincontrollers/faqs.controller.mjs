@@ -94,7 +94,7 @@ const createFaqsAdminController = async (req, res, next) => {
 
 const updateFaqsController = async (req, res, next) => {
   try {
-    const { question, answer } = req.body;
+    const { question, answer,journey } = req.body;
     const faq = await Faqs.findById(req.params.faqId);
     if (faq === null) {
       return next(new CustomError(404, "This faq doesn't exist.!"));
@@ -102,6 +102,7 @@ const updateFaqsController = async (req, res, next) => {
 
     faq.question = question;
     faq.answer = answer;
+    faq.journey=journey;
     await faq.save();
     return res.send({ message: "Successfully updated faq." });
   } catch (e) {

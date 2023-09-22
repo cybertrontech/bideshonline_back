@@ -21,6 +21,7 @@ import tabsRouter from "./adminroutes/tabs.routes.js";
 import infoRouter from "./adminroutes/info.routes.js";
 import tabsFrontRouter from "./routes/tab.routes.js";
 import faqsRouter from "./adminroutes/faqs.routes.js";
+import journeyRouterForUser from "./routes/journey.routes.js";
 import tabsRouterContent from "./contentroutes/tabs.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
 import { CustomError } from "./error/CustomError.mjs";
@@ -243,6 +244,7 @@ app.get("/check", async (req, res, next) => {
 
 app.use("/uploads", express.static("uploads"));
 app.use("/faqs", faqsRouter);
+app.use("/journey", journeyRouterForUser);
 app.use("/tabs", tabsFrontRouter);
 app.use("/admin/journey", journeyRouter);
 app.use("/admin/stats", dataRouter);

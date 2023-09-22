@@ -31,6 +31,24 @@ const getFaqsController = async (req, res, next) => {
   }
 };
 
+const getFaqsControllerById = async (req, res, next) => {
+  try {
+    const journeyId = req.params.journeyId;
+    const faqs = await Faqs.find({journey:journeyId})
+      .populate({
+        path: "journey",
+        populate: { path: "origin destination", select: "_id name" },
+      })
+      .select("-__v -active")
+      .sort("-createdAt");
+
+    return res.send(faqs);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
+
 const createFaqsController = async (req, res, next) => {
   try {
     const { question, journey } = req.body;
@@ -106,4 +124,5 @@ export {
   updateFaqsController,
   deleteFaqsController,
   createFaqsAdminController,
+  getFaqsControllerById
 };

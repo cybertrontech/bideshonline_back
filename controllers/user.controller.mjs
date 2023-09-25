@@ -17,6 +17,11 @@ const newPasswordSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const resetPasswordSchema = Joi.object({
+  old_password: Joi.string().required(),
+  new_password: Joi.string().required(),
+});
+
 const userValidationSchema = Joi.object({
   first_name: Joi.string().required(),
   last_name: Joi.string().required(),
@@ -422,7 +427,6 @@ const forgotPassword = async (req, res, next) => {
     user.forgotPasswordCode = code;
     user.forgotCodeExpired = false;
     try {
-
       const subject = "Forgot Password";
       const text = `Dear ${user.first_name} ${user.last_name}, Please donot share this with anyone. Your password recovery code is : ${code}`;
 
@@ -433,7 +437,6 @@ const forgotPassword = async (req, res, next) => {
       return res.send({
         message: "Code successfully sent to your mail.Please check your email.",
       });
-
     } catch (e) {
       return next(new CustomError(500, "Something Went Wrong In Mail!"));
     }
@@ -478,6 +481,35 @@ const newPassword = async (req, res, next) => {
   }
 };
 
+const resetPassword = async (req, res, next) => {
+  try {
+    const { error } = resetPasswordSchema.validate(req.body);
+    // Check for validation errors
+    if (error) {
+      return next(new CustomError(400, error.details[0].message));
+    }
+
+    const { old_password, new_password } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (user === null) {
+      return next(new CustomError(404, "User doesn't exist.!"));
+    }
+    const match = await bcrypt.compare(old_password, user.password);
+    if (match) {
+      const salt=await bcrypt.genSalt(10);
+      const newpass=await bcrypt.hash(new_password,salt);
+      user.password=newpass;
+      await user.save();
+      return res.send({"message":"Your password has been successfully updated."})
+    } else {
+      return next(new CustomError(403, "Your old password doesn't match."));
+    }
+    return res.send(match);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 const getUserByTokenAdminController = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId).select(
@@ -511,7 +543,7 @@ const editUserByTokenAdminController = async (req, res, next) => {
 
     await user.save();
 
-    return res.send({first_name,last_name,email});
+    return res.send({ first_name, last_name, email });
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
@@ -533,4 +565,5 @@ export {
   createUserControllerGoogle,
   getUserByTokenAdminController,
   editUserByTokenAdminController,
+  resetPassword,
 };

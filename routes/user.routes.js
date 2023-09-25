@@ -14,7 +14,8 @@ import {
   editFrontUserAdvanceController,
   getUserByTokenAdminController,
   editUserByTokenAdminController,
-  newPassword
+  newPassword,
+  resetPassword
 } from "../controllers/user.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -67,6 +68,8 @@ router.post("/by-admin", createUserControllerByAdmin);
 router.post("/forgot-password",forgotPassword);
 
 router.post("/new-password",newPassword)
+
+router.post("/reset-password",auth,resetPassword)
 
 // // Get a specific user by ID
 // router.get('/users/:id', (req, res) => {

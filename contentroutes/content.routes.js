@@ -192,14 +192,14 @@ router.post(
         language: language,
         tab: tab,
       });
-      if (con.length > 0) {
-        return next(
-          new CustomError(
-            404,
-            "Content with this journey and language already exists."
-          )
-        );
-      }
+      // if (con.length > 0) {
+      //   return next(
+      //     new CustomError(
+      //       404,
+      //       "Content with this journey and language already exists."
+      //     )
+      //   );
+      // }
       const contentCreatorCountryIsActual = await Contentcreatorcountry.find({
         creator: req.user.userId,
         country: actJour.origin,

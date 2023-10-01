@@ -22,6 +22,7 @@ router.get("/", auth, async (req, res, next) => {
           select: "_id title first_name last_name image",
         },
       })
+      sort("-createdAt")
       .select("-user -__v");
     return res.send(noti);
   } catch (e) {

@@ -65,7 +65,7 @@ const getContentByIdController = async (req, res, next) => {
 };
 
 const createContentController = async (req, res, next) => {
-  try {
+  // try {
     const { tab, journey, language, data, title, youtube_video_link } =
       req.body;
     const notifications = [];
@@ -115,7 +115,10 @@ const createContentController = async (req, res, next) => {
 
     for (let i = 0; i < destUsers.length; i++) {
       // // console.log(destUsers[i]?.user?.email)
+      if(destUsers[i] && destUsers[i].user && destUsers[i].user._id && cont)
+      {
       notifications.push({ user: destUsers[i].user._id, content: cont._id });
+      }
       if (
         destUsers[i]?.user?.deviceId !== undefined &&
         destUsers[i]?.user?.deviceId !== null
@@ -131,7 +134,7 @@ const createContentController = async (req, res, next) => {
       if (fmwTokens.length > 0) {
         await sendNotificationAtBulk(
           fmwTokens,
-          `Content added for ${jor.destination.name}.`,
+          `${cont.title.length>20 ? cont.title.slice(0,20) : cont.title}....`,
           "Kindly check your notifications section in bidesh online app to get the full access to the content."
         );
       }
@@ -142,10 +145,10 @@ const createContentController = async (req, res, next) => {
         new CustomError(500, "Something went wrong (Notification section) .")
       );
     }
-  } catch (e) {
-    // console.log(e);
-    return next(new CustomError(500, "Something Went Wrong!"));
-  }
+  // } catch (e) {
+  //   // console.log(e);
+  //   return next(new CustomError(500, "Something Went Wrong!"));
+  // }
 };
 
 const updateContentController = async (req, res, next) => {

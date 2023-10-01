@@ -86,14 +86,15 @@ const createContentController = async (req, res, next) => {
     }
 
     const con = await Content.find({ journey: journey, tab: tab });
-    if (con.length > 0) {
-      return next(
-        new CustomError(
-          404,
-          "Content with this journey and language already exists."
-        )
-      );
-    }
+
+    // if (con.length > 0) {
+    //   return next(
+    //     new CustomError(
+    //       404,
+    //       "Content with this journey and language already exists."
+    //     )
+    //   );
+    // }
 
     const cont = new Content({
       tab,

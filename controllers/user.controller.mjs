@@ -62,7 +62,7 @@ const userValidationAdminSchema = Joi.object({
 const getUserByIdController = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId)
-      .select("_id first_name last_name email phonenumber origin language")
+      .select("_id first_name last_name email phonenumber image origin language")
       .populate({ path: "origin", select: "_id name" })
       .populate({ path: "language", select: "_id name" });
 
@@ -373,7 +373,10 @@ const editFrontUserWithImageController = async (req, res, next) => {
     user.email = email;
     user.origin = origin;
     user.language = language;
-    user.image = path;
+    if(path)
+    {
+      user.image = path;
+    }
     await user.save();
 
     return res.status(200).json({

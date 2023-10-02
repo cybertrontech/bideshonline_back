@@ -65,7 +65,7 @@ const getContentByIdController = async (req, res, next) => {
 };
 
 const createContentController = async (req, res, next) => {
-  // try {
+  try {
     const { tab, journey, language, data, title, youtube_video_link } =
       req.body;
     const notifications = [];
@@ -77,13 +77,13 @@ const createContentController = async (req, res, next) => {
     if (error) {
       return next(new CustomError(400, error.details[0].message));
     }
-    const path = req?.file.path;
+    const path = req?.file?.path || "";
 
     const jor = await Journery.findById(journey).populate("destination");
 
     if (jor === null) {
       return next(new CustomError(404, "This journey doesn't exist."));
-    }
+    };
 
     const con = await Content.find({ journey: journey, tab: tab });
 
@@ -145,11 +145,12 @@ const createContentController = async (req, res, next) => {
         new CustomError(500, "Something went wrong (Notification section) .")
       );
     }
-  // } catch (e) {
-  //   // console.log(e);
-  //   return next(new CustomError(500, "Something Went Wrong!"));
-  // }
-};
+  } catch (e) {
+    // console.log(e);
+    return next(new CustomError(500, "Something Went Wrong!"));
+
+  }
+ };
 
 const updateContentController = async (req, res, next) => {
   try {
@@ -162,7 +163,7 @@ const updateContentController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
-    const path = req?.file.path;
+    const path = req?.file?.path;
 
     const con = await Content.findOne({ _id: req.params.contentId });
     if (con === null) {
@@ -183,6 +184,8 @@ const updateContentController = async (req, res, next) => {
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
+
+
 };
 
 const getContentCreatorCountriesByIdController = async (req, res, next) => {

@@ -209,7 +209,7 @@ router.post(
           new CustomError(404, "Sorry you cannot post this content.")
         );
       }
-      const path = req?.file.path;
+      const path = req?.file?.path;
 
       const cont = new Content({
         tab,
@@ -272,12 +272,13 @@ router.post(
       // Check for validation errors
       if (error) {
         return next(new CustomError(400, error.details[0].message));
-      }
+      };
 
       const con = await Content.findOne({ _id: req.params.contentId });
+
       if (con === null) {
         return next(new CustomError(404, "Content doesn't exist."));
-      }
+      };
 
       const a = con.creator.toString();
       const b = new ObjectId(req.user.userId).toString();
@@ -292,11 +293,13 @@ router.post(
       con.data = data;
       con.title = title;
       con.youtube_video_link = youtube_video_link;
+
       if (path !== null) {
         con.background_image = path;
-      }
+      };
 
       await con.save();
+
 
       return res.send({ message: "Content sucessfully updated." });
     } catch (e) {

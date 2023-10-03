@@ -31,6 +31,7 @@ const sendNotificationAtBulk = async (fmwTokens, title, body) => {
     notification: {
       title,
       body,
+      type:"global_push"
     },
   };
 

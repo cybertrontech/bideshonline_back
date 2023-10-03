@@ -189,9 +189,69 @@ router.get("/", auth, async (req, res, next) => {
 });
 
 // get contents wise
-router.get("/contents/:tabId", auth, async (req, res, next) => {
+router.get("/contents/:tabId/:destinationId", auth, async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: req.user.userId });
+    // const tabs = await Content.aggregate([
+    //   {
+    //     $match: {
+    //       tab: new ObjectId(req.params.tabId),
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "journeries",
+    //       localField: "journey",
+    //       foreignField: "_id",
+    //       as: "jor",
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$jor",
+    //   },
+    //   {
+    //     $addFields: {
+    //       dest: "$jor.destination",
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "destinationusers",
+    //       let: { desti: "$dest" },
+    //       pipeline: [
+    //         {
+    //           $match: {
+    //             $expr: {
+    //               $and: [
+    //                 { $eq: ["$user", new ObjectId(req.user.userId)] },
+    //                 { $eq: ["$destination", "$$desti"] },
+    //               ],
+    //             },
+    //           },
+    //         },
+    //       ],
+    //       as: "destinations",
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       destLen: { $size: "$destinations" },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       title: 1,
+    //       journey: 1,
+    //       tab: 1,
+    //       dest: 1,
+    //       d: 1,
+    //       destLen: 1,
+    //       background_image: 1,
+    //     },
+    //   },
+    // ]);
+
     const tabs = await Content.aggregate([
       {
         $match: {
@@ -212,58 +272,86 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
       {
         $addFields: {
           dest: "$jor.destination",
+          orig: "$jor.origin",
         },
       },
       {
-        $lookup: {
-          from: "destinationusers",
-          let: { desti: "$dest" },
-          pipeline: [
+        $match: {
+          $and: [
             {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$user", new ObjectId(req.user.userId)] },
-                    { $eq: ["$destination", "$$desti"] },
-                  ],
-                },
-              },
+              dest: new ObjectId(req.params.destinationId),
             },
+            {
+              orig: new ObjectId(user.origin),
+            },
+            {
+              language:new ObjectId(user.language)
+            }
           ],
-          as: "destinations",
         },
       },
-      {
-        $addFields: {
-          destLen: { $size: "$destinations" },
-        },
-      },
-      {
+        {
         $project: {
           _id: 1,
           title: 1,
-          journey: 1,
           tab: 1,
-          dest: 1,
-          d: 1,
-          destLen: 1,
           background_image: 1,
         },
       },
+
+      // {
+      //   $lookup: {
+      //     from: "destinationusers",
+      //     let: { desti: "$dest" },
+      //     pipeline: [
+      //       {
+      //         $match: {
+      //           $expr: {
+      //             $and: [
+      //               { $eq: ["$user", new ObjectId(req.user.userId)] },
+      //               { $eq: ["$destination", "$$desti"] },
+      //             ],
+      //           },
+      //         },
+      //       },
+      //     ],
+      //     as: "destinations",
+      //   },
+      // },
+      // {
+      //   $addFields: {
+      //     destLen: { $size: "$destinations" },
+      //   },
+      // },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     title: 1,
+      //     journey: 1,
+      //     tab: 1,
+      //     dest: 1,
+      //     d: 1,
+      //     destLen: 1,
+      //     background_image: 1,
+      //   },
+      // },
     ]);
+
 
     const t = await Journery.populate(tabs, {
       path: "journey",
       select: "_id origin",
     });
 
-    const finalQuery = t.filter(
-      (obj) =>
-        obj.journey.origin.toString() === user.origin.toString() &&
-        obj.destLen > 0
-    );
+    return res.send(t);
 
-    return res.send(finalQuery);
+    // const finalQuery = t.filter(
+    //   (obj) =>
+    //     obj.journey.origin.toString() === user.origin.toString() &&
+    //     obj.destLen > 0
+    // );
+
+    // return res.send(finalQuery);
   } catch (e) {
     return next(new Error());
   }
@@ -336,10 +424,10 @@ router.get("/contents/:tabId", auth, async (req, res, next) => {
 //   }
 // );
 
-router.get("/:contentId/:destinationId ", auth, async (req, res, next) => {
+router.get("/one-content/:contentId", auth, async (req, res, next) => {
   try {
     // const langId = req.params.languageId;
-    const { destinationId } = req.params;
+    // const { destinationId } = req.params;
 
     const user = await User.findById(req.user.userId);
 
@@ -347,14 +435,15 @@ router.get("/:contentId/:destinationId ", auth, async (req, res, next) => {
       return next(new CustomError(404, "User doesn't exist."));
     }
 
-    const journey = await Journery.findOne({
-      origin: user.origin,
-      destination: destinationId,
-    });
+    // const journey = await Journery.findOne({
+    //   origin: user.origin,
+    //   destination: destinationId,
+    // });
 
-    if (journey === null) {
-      return next(new CustomError(404, "This content doesn't exist."));
-    }
+    // if (journey === null) {
+    //   return next(new CustomError(404, "This content doesn't exist."));
+    // }
+
     const content = await Content.findById(req.params.contentId).populate({
       path: "creator",
       select: { first_name: 1, last_name: 1, image: 1 },

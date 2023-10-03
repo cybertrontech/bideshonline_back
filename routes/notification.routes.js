@@ -10,7 +10,7 @@ import { User } from "../models/User.mjs";
 import { sendNotificationAtBulk } from "../utils/notificationSender.mjs";
 const router = express.Router();
 
-// get all countries list
+// get all notifications list
 router.get("/", auth, async (req, res, next) => {
   try {
     const noti = await Notification.find({ user: req.user.userId })
@@ -50,16 +50,18 @@ router.post("/push", [auth, isAdmin], async (req, res, next) => {
       body,
       type: "push",
     });
-    const users = await User.find({ userType: "admin" });
+    const users = await User.find({ userType: "normal" });
+    console.log(users);
 
     for (let i = 0; i < users.length; i++) {
       if (
-        users[i]?.user?.deviceId !== undefined &&
-        users[i]?.user?.deviceId !== null
+        users[i]?.deviceId !== undefined &&
+        users[i]?.deviceId !== null
       ) {
         fmwTokens.push(users[i].deviceId);
       }
     }
+
 
     try {
       if (fmwTokens.length > 0) {

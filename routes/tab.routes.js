@@ -290,12 +290,16 @@ router.get("/contents/:tabId/:destinationId", auth, async (req, res, next) => {
           ],
         },
       },
+      {
+        $sort:{createdAt:-1}
+      },
         {
         $project: {
           _id: 1,
           title: 1,
           tab: 1,
           background_image: 1,
+          createdAt:1
         },
       },
 

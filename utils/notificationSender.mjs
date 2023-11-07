@@ -31,14 +31,36 @@ const sendNotificationAtBulk = async (fmwTokens, title, body) => {
     notification: {
       title,
       body,
-      type:"global_push"
     },
+   
   };
+  console.log(message);
 
 
   await admin
     .messaging()
-    .sendMulticast({ tokens: fmwTokens, notification: message.notification });
+    .sendMulticast({ tokens: fmwTokens, notification: message.notification});
+
 };
 
-export { sendNotification, sendNotificationAtBulk };
+const sendNotificationAtBulkForPush = async (fmwTokens, title, body) => {
+  const message = {
+    notification: {
+      title,
+      body,
+      // type:"global_push"
+    },
+    data:{
+      type:"global_push"
+    }
+  };
+  console.log(message);
+
+
+  await admin
+    .messaging()
+    .sendMulticast({ tokens: fmwTokens, notification: message.notification,data:message.data});
+
+};
+
+export { sendNotification, sendNotificationAtBulk,sendNotificationAtBulkForPush };

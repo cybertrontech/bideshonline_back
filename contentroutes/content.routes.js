@@ -54,7 +54,7 @@ router.get(
       // const contentCreatorCountry = await Contentcreatorcountry.find({
       //   creator: req.user.userId,
       // });
-      console.log(req.user.userId);
+      // console.log(req.user.userId);
 
       const journey = await Journery.aggregate([
         {
@@ -67,7 +67,9 @@ router.get(
               {
                 $match: {
                   $expr: {
-                    $eq: ["$creator", new ObjectId(req.user.userId)], 
+                    $and: [
+                      { $eq: ["$creator", new ObjectId(req.user.userId)] },
+                    ],
                   },
                 },
               },
@@ -75,7 +77,7 @@ router.get(
             as: "jor",
           },
         },
-          {
+        {
           $unwind: "$jor",
         },
         {
@@ -272,13 +274,13 @@ router.post(
       // Check for validation errors
       if (error) {
         return next(new CustomError(400, error.details[0].message));
-      };
+      }
 
       const con = await Content.findOne({ _id: req.params.contentId });
 
       if (con === null) {
         return next(new CustomError(404, "Content doesn't exist."));
-      };
+      }
 
       const a = con.creator.toString();
       const b = new ObjectId(req.user.userId).toString();
@@ -296,10 +298,9 @@ router.post(
 
       if (path !== null) {
         con.background_image = path;
-      };
+      }
 
       await con.save();
-
 
       return res.send({ message: "Content sucessfully updated." });
     } catch (e) {

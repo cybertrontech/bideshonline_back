@@ -9,19 +9,26 @@ import {
   updateFaqsController,
   deleteFaqsController,
   createFaqsAdminController,
-  getFaqsControllerById
+  getFaqsControllerById,
+  getFaqsControllerByDestinationId,
 } from "../admincontrollers/faqs.controller.mjs";
 const router = express.Router();
 
 //get all faqs
 router.get("/", [auth], getFaqsController);
 
-
-//get all faqs by journeyId
+// get all faqs by journeyId
 router.get("/:journeyId", [auth], getFaqsControllerById);
 
+//get all faqs by destinationId
+router.get(
+  "/destination/:destinationId",
+  [auth],
+  getFaqsControllerByDestinationId
+);
+
 //
-router.post("/for-admin", [auth,isAdmin], createFaqsAdminController);
+router.post("/for-admin", [auth, isAdmin], createFaqsAdminController);
 
 //create new faq
 router.post("/", [auth], createFaqsController);

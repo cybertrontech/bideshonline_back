@@ -1,5 +1,8 @@
 import { CustomError } from "../error/CustomError.mjs";
+
 import { Faqs } from "../models/Faqs.mjs";
+import { Journery } from "../models/Journey.mjs";
+import { User } from "../models/User.mjs";
 import Joi from "joi";
 import jId from "joi-objectid";
 const jObjId = jId(Joi);
@@ -34,7 +37,7 @@ const getFaqsController = async (req, res, next) => {
 const getFaqsControllerById = async (req, res, next) => {
   try {
     const journeyId = req.params.journeyId;
-    const faqs = await Faqs.find({journey:journeyId})
+    const faqs = await Faqs.find({ journey: journeyId })
       .populate({
         path: "journey",
         populate: { path: "origin destination", select: "_id name" },
@@ -48,6 +51,29 @@ const getFaqsControllerById = async (req, res, next) => {
   }
 };
 
+const getFaqsControllerByDestinationId = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    const journey = await Journery.findOne({
+      origin: user.origin,
+      destination: req.params.destinationId,
+    });
+    if (!journey) {
+      return next(new CustomError(400, "This journey doesn't exist."));
+    }
+    const faqs = await Faqs.find({ journey: journey.id })
+      .populate({
+        path: "journey",
+        populate: { path: "origin destination", select: "_id name" },
+      })
+      .select("-__v -active")
+      .sort("-createdAt");
+
+    return res.send(faqs);
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
 
 const createFaqsController = async (req, res, next) => {
   try {
@@ -94,7 +120,7 @@ const createFaqsAdminController = async (req, res, next) => {
 
 const updateFaqsController = async (req, res, next) => {
   try {
-    const { question, answer,journey } = req.body;
+    const { question, answer, journey } = req.body;
     const faq = await Faqs.findById(req.params.faqId);
     if (faq === null) {
       return next(new CustomError(404, "This faq doesn't exist.!"));
@@ -102,7 +128,7 @@ const updateFaqsController = async (req, res, next) => {
 
     faq.question = question;
     faq.answer = answer;
-    faq.journey=journey;
+    faq.journey = journey;
     await faq.save();
     return res.send({ message: "Successfully updated faq." });
   } catch (e) {
@@ -125,5 +151,6 @@ export {
   updateFaqsController,
   deleteFaqsController,
   createFaqsAdminController,
-  getFaqsControllerById
+  getFaqsControllerById,
+  getFaqsControllerByDestinationId,
 };

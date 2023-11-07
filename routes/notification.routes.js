@@ -7,7 +7,7 @@ import { isAdmin } from "../middleware/admin.mjs";
 import { CustomError } from "../error/CustomError.mjs";
 import { Notification } from "../models/Notification.mjs";
 import { User } from "../models/User.mjs";
-import { sendNotificationAtBulk } from "../utils/notificationSender.mjs";
+import {  sendNotificationAtBulkForPush } from "../utils/notificationSender.mjs";
 const router = express.Router();
 
 // get all notifications list
@@ -51,7 +51,6 @@ router.post("/push", [auth, isAdmin], async (req, res, next) => {
       type: "push",
     });
     const users = await User.find({ userType: "normal" });
-    console.log(users);
 
     for (let i = 0; i < users.length; i++) {
       if (
@@ -65,12 +64,11 @@ router.post("/push", [auth, isAdmin], async (req, res, next) => {
 
     try {
       if (fmwTokens.length > 0) {
-        await sendNotificationAtBulk(fmwTokens, title, body);
+        await sendNotificationAtBulkForPush(fmwTokens, title, body);
       }
       await noti.save();
       return res.send({ message: "Push notification sent." });
     } catch (e) {
-      // console.log(e);
       return next(new CustomError(500, "Something went wrong."));
     }
   } catch (e) {

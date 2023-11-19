@@ -26,14 +26,17 @@ import tabsRouterContent from "./contentroutes/tabs.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
 import { CustomError } from "./error/CustomError.mjs";
 import { errorHandler } from "./error/handler.mjs";
-import {getMessaging} from "@firebase/messaging"
+import { getMessaging } from "@firebase/messaging";
 import cors from "cors";
 
 import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
 import { Country } from "./models/Country.mjs";
 import { Language } from "./models/Language.mjs";
-import { sendNotification, sendNotificationAtBulk } from "./utils/notificationSender.mjs";
+import {
+  sendNotification,
+  sendNotificationAtBulk,
+} from "./utils/notificationSender.mjs";
 
 dotenv.config();
 const app = express();
@@ -235,7 +238,6 @@ const notification_options = {
 app.get("/check", async (req, res, next) => {
   try {
     return res.send("Test success");
-
   } catch (e) {
     // console.log(e);
     return next(new CustomError(500, "Something Went Wrong!"));

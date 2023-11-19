@@ -38,10 +38,20 @@ dotenv.config();
 const app = express();
 connectDb();
 
+app.use((res, req, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+
+  next();
+});
+
 app.use(
   cors({
-    origin: ["https://creatorbidesh.netlify.app", "http://localhost:3000"],
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+    origin: "*",
   })
 );
 

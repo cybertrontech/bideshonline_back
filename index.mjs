@@ -44,7 +44,7 @@ connectDb();
 
 app.use(
   cors({
-    origin: "*",
+    origin: ["https://creatorbidesh.netlify.app", "http://localhost:3000"],
   })
 );
 

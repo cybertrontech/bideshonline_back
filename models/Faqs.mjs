@@ -9,16 +9,16 @@ const fqsSchema = new mongoose.Schema(
     },
     answer: {
       type: String,
-      default:"",
+      default: "",
     },
-    journey:{
+    journey: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Journery"
+      ref: "Journery",
     },
-    active:{
-      type:Boolean,
-      default:true
-    }
+    active: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -26,4 +26,4 @@ const fqsSchema = new mongoose.Schema(
 // Create the User model
 const Faqs = mongoose.model("Faqs", fqsSchema);
 
-export  {Faqs};
+export { Faqs };

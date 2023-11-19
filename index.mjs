@@ -33,10 +33,6 @@ import { DestinationUser, User } from "./models/User.mjs";
 import { isAdmin } from "./middleware/admin.mjs";
 import { Country } from "./models/Country.mjs";
 import { Language } from "./models/Language.mjs";
-import {
-  sendNotification,
-  sendNotificationAtBulk,
-} from "./utils/notificationSender.mjs";
 
 dotenv.config();
 const app = express();
@@ -45,6 +41,7 @@ connectDb();
 app.use(
   cors({
     origin: ["https://creatorbidesh.netlify.app", "http://localhost:3000"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   })
 );
 

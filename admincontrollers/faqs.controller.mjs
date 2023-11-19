@@ -16,18 +16,18 @@ const createFaqAdminSchema = Joi.object({
   question: Joi.string().required(),
   answer: Joi.string().required(),
   journey: jObjId(),
+  active: Joi.boolean(),
 });
 
 const getFaqsController = async (req, res, next) => {
   try {
-    const faqs = await Faqs.find({ active: true })
+    const faqs = await Faqs.find({})
       .populate({
         path: "journey",
         populate: { path: "origin destination", select: "_id name" },
       })
-      .select("-__v -active")
+      .select("-__v")
       .sort("-createdAt");
-
     return res.send(faqs);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -37,12 +37,12 @@ const getFaqsController = async (req, res, next) => {
 const getFaqsControllerById = async (req, res, next) => {
   try {
     const journeyId = req.params.journeyId;
-    const faqs = await Faqs.find({ journey: journeyId })
+    const faqs = await Faqs.find({ journey: journeyId, active: true })
       .populate({
         path: "journey",
         populate: { path: "origin destination", select: "_id name" },
       })
-      .select("-__v -active")
+      .select("-__v")
       .sort("-createdAt");
 
     return res.send(faqs);
@@ -61,7 +61,7 @@ const getFaqsControllerByDestinationId = async (req, res, next) => {
     if (!journey) {
       return next(new CustomError(400, "This journey doesn't exist."));
     }
-    const faqs = await Faqs.find({ journey: journey.id })
+    const faqs = await Faqs.find({ journey: journey.id, active: true })
       .populate({
         path: "journey",
         populate: { path: "origin destination", select: "_id name" },
@@ -110,6 +110,7 @@ const createFaqsAdminController = async (req, res, next) => {
       question,
       answer,
       journey,
+      active: true,
     });
     await faq.save();
     return res.send({ ...faq._doc });
@@ -120,7 +121,7 @@ const createFaqsAdminController = async (req, res, next) => {
 
 const updateFaqsController = async (req, res, next) => {
   try {
-    const { question, answer, journey } = req.body;
+    const { question, answer, journey, active } = req.body;
     const faq = await Faqs.findById(req.params.faqId);
     if (faq === null) {
       return next(new CustomError(404, "This faq doesn't exist.!"));
@@ -129,6 +130,7 @@ const updateFaqsController = async (req, res, next) => {
     faq.question = question;
     faq.answer = answer;
     faq.journey = journey;
+    faq.active = active;
     await faq.save();
     return res.send({ message: "Successfully updated faq." });
   } catch (e) {

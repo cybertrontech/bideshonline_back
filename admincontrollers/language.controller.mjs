@@ -68,7 +68,7 @@ const createLanguageController = async (req, res, next) => {
       return next(new CustomError(400, error.details[0].message));
     }
 
-    const lang = await Language.find({ name,country });
+    const lang = await Language.find({ name, country });
     if (lang.length > 0) {
       return next(
         new CustomError(400, "Language with this name already exists.")

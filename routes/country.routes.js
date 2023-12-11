@@ -6,8 +6,10 @@ dotenv.config();
 import {
   getAllCountryController,
   getLanguageByCountryController,
-  getDestinationCountryController,getDestinationCountryControllerByUser
-  ,addtDestinationCountryController
+  getDestinationCountryController,
+  getDestinationCountryControllerByUser,
+  addtDestinationCountryController,
+  deleteCountryController,
 } from "../controllers/country.controller.mjs";
 import { auth } from "../middleware/auth.mjs";
 import { isAdmin } from "../middleware/admin.mjs";
@@ -19,15 +21,16 @@ router.get("/", getAllCountryController);
 // get language by contry
 router.get("/language/:countryId", getLanguageByCountryController);
 
-// get user country destination 
-router.get("/destination",[auth], getDestinationCountryController);
+// get user country destination
+router.get("/destination", [auth], getDestinationCountryController);
 
-// add user  destination 
-router.post("/add-destination",[auth], addtDestinationCountryController);
+// add user  destination
+router.post("/add-destination", [auth], addtDestinationCountryController);
 
 // get user country destination  and user
-router.get("/user-destination",[auth], getDestinationCountryControllerByUser);
+router.get("/user-destination", [auth], getDestinationCountryControllerByUser);
 
-
+// delete admin country
+router.delete("/:countryId", [auth, isAdmin], deleteCountryController);
 
 export default router;

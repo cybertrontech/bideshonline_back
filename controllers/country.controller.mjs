@@ -7,7 +7,9 @@ import { DestinationUser } from "../models/User.mjs";
 
 const getAllCountryController = async (req, res, next) => {
   try {
-    const countries = await Country.find({}).select("-__v -active").sort("-createdAt");
+    const countries = await Country.find({})
+      .select("-__v -active")
+      .sort("-createdAt");
     return res.send(countries);
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
@@ -37,7 +39,7 @@ const getDestinationCountryController = async (req, res, next) => {
 const getDestinationCountryControllerByUser = async (req, res, next) => {
   try {
     // // console.log(req.user.userId);
-    const countries = await DestinationUser.find({user:req.user.userId})
+    const countries = await DestinationUser.find({ user: req.user.userId })
       .populate({ path: "destination", select: "_id name" })
       .select("-__v -user");
     return res.send(countries);
@@ -46,27 +48,36 @@ const getDestinationCountryControllerByUser = async (req, res, next) => {
   }
 };
 
-const addtDestinationCountryController=async(req,res,next)=>{
+const addtDestinationCountryController = async (req, res, next) => {
   try {
-    const {destination}=req.body;
-    let finalDest=[];
-    await DestinationUser.deleteMany({user:req.user.userId});
-    for(let i=0;i<destination.length;i++)
-    {
-      finalDest.push({user:req.user.userId,destination:destination[i]})
+    const { destination } = req.body;
+    let finalDest = [];
+    await DestinationUser.deleteMany({ user: req.user.userId });
+    for (let i = 0; i < destination.length; i++) {
+      finalDest.push({ user: req.user.userId, destination: destination[i] });
     }
     await DestinationUser.insertMany(finalDest);
 
     return res.send(finalDest);
-
   } catch (e) {
     return next(new CustomError(500, "Something Went Wrong!"));
   }
-}
+};
+
+const deleteCountryController = async (req, res, next) => {
+  try {
+    await Country.findByIdAndDelete(req.params.countryId);
+    return res.send({ message: "Successfully Deleted." });
+  } catch (e) {
+    return next(new CustomError(500, "Something Went Wrong!"));
+  }
+};
+
 export {
   getAllCountryController,
   getLanguageByCountryController,
   getDestinationCountryController,
   getDestinationCountryControllerByUser,
-  addtDestinationCountryController
+  addtDestinationCountryController,
+  deleteCountryController,
 };

@@ -230,7 +230,12 @@ router.post(
       }).populate({ path: "user", select: "_id deviceId email" });
 
       for (let i = 0; i < destUsers.length; i++) {
-        notifications.push({ user: destUsers[i].user._id, content: cont._id });
+        if (destUsers[i]?.user?._id) {
+          notifications.push({
+            user: destUsers[i].user._id,
+            content: cont._id,
+          });
+        }
         if (
           destUsers[i]?.user?.deviceId !== undefined &&
           destUsers[i]?.user?.deviceId !== null
